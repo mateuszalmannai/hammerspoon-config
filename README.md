@@ -1,0 +1,161 @@
+# Hammerspoon config
+
+My [Hammerspoon](https://www.hammerspoon.org/) setup: app launching, window
+management, a leader-key menu, clipboard helpers, and a few menu bar / desktop
+widgets.
+
+**Hyper** below means `⌃⌥⌘` (Ctrl+Option+Cmd).
+
+## Setup on a new Mac
+
+1. Install Hammerspoon:
+   ```sh
+   brew install --cask hammerspoon
+   ```
+2. Clone this repo into `~/.hammerspoon` (move any existing one aside first):
+   ```sh
+   git clone https://github.com/mateuszalmannai/hammerspoon-config.git ~/.hammerspoon
+   ```
+3. Launch Hammerspoon and grant it **Accessibility** permission
+   (System Settings → Privacy & Security → Accessibility). Hotkeys and window
+   management do not work without it.
+4. Optional: install the `hs` command-line tool by running this once in the
+   Hammerspoon console (Hyper+Y):
+   ```lua
+   hs.ipc.cliInstall("/opt/homebrew")
+   ```
+
+On load you get a "Hammerspoon config loaded" alert and a sound.
+
+The app hotkeys assume Brave, WhatsApp, Fantastical, WezTerm, Strongbox and
+Yubico Authenticator are installed. Edit `modules/app_launcher.lua` and
+`modules/leader.lua` to change them.
+
+## Finding your hotkeys
+
+- **⌘⌥H**: cheatsheet of every active Hammerspoon hotkey with a description.
+  It's built from the live hotkey list, so it's always current.
+- **Hyper+/**: KSheet, which shows the menu shortcuts of the frontmost app.
+
+## Layout
+
+```
+init.lua                      entry point: loads modules and spoons
+modules/
+  hotkeyCheatsheet.lua        ⌘⌥H cheatsheet + bindHotkey/describe helpers
+  app_launcher.lua            launch-or-focus app hotkeys
+  window_management.lua       move window to display N
+  network.lua                 ping check
+  misc_hotkeys.lua            clipboard, lock/sleep, console, reload, etc.
+  leader.lua                  Hyper+Space leader menu (RecursiveBinder)
+Spoons/                       vendored spoons (see below)
+```
+
+### Adding a hotkey
+
+Bind through the cheatsheet helper so the hotkey shows up in ⌘⌥H:
+
+```lua
+hotkeyCheatsheet.bindHotkey(hyper, "x", function() ... end, "What it does")
+```
+
+For hotkeys a spoon binds itself, add a description afterwards:
+
+```lua
+hotkeyCheatsheet.describe(hyper, "m", "Toggle mounted volumes on desktop")
+```
+
+To add a leader-menu entry, add it to the `keymap` table in `modules/leader.lua`.
+Shared actions live in `M.actions` in `modules/misc_hotkeys.lua`, so a hotkey
+and its leader entry call the same function.
+
+## Hotkeys
+
+### Leader menu: Hyper+Space
+
+Press Hyper+Space, then follow the helper bar at the bottom of the screen.
+Escape cancels.
+
+| Group | Keys |
+|---|---|
+| `a` apps | `b` Brave, `w` WhatsApp, `f` Fantastical, `t` WezTerm, `s` Strongbox, `y` Yubico |
+| `w` window | `1` / `2` / `3` move window to that display |
+| `c` clipboard | `d` copy date, `e` copy epoch hex, `v` type clipboard |
+| `s` system | `l` lock, `z` sleep, `k` kill Dock, `t` show time |
+| `h` hammerspoon | `r` reload, `c` console, `h` cheatsheet |
+
+### Apps
+
+| Hotkey | App |
+|---|---|
+| ⌘⇧B | Brave Browser |
+| ⌘⇧W | WhatsApp |
+| ⌘⌥C | Fantastical |
+| ⌘⌥W | WezTerm |
+| ⌘⌥S | Strongbox |
+| ⌘⌥Y | Yubico Authenticator |
+
+### Windows (MiroWindowsManager)
+
+| Hotkey | Action |
+|---|---|
+| Hyper+←/→/↑/↓ | Snap to that half. Press again to cycle 1/2 → 1/3 → 2/3 |
+| Hyper+F | Full screen. Press again to cycle full → 3/4 → 1/2 |
+| ⌘⌥1 / 2 / 3 | Move window to display 1 / 2 / 3 |
+
+### Clipboard and text
+
+| Hotkey | Action |
+|---|---|
+| ⌘⌥D | Copy today's date (`YYYY-MM-DD-`) |
+| ⌘⌥T | Copy the current Unix time as uppercase hex |
+| Hyper+V | Type the clipboard contents as keystrokes (for fields that block paste) |
+
+### System
+
+| Hotkey | Action |
+|---|---|
+| Hyper+L | Lock screen |
+| Hyper+Z | Sleep |
+| ⌘⌥K | Kill (restart) the Dock |
+| ⌘⌥P | Ping 8.8.8.8 and report network quality |
+| ⌥⇧T | Show the current time |
+| Hyper+C | Big clock in the middle of the screen (AClock) |
+| Hyper+M | Toggle mounted volumes on the desktop |
+| ⌃/ | Mic mute: tap to toggle, hold for push-to-talk (MicMute) |
+
+### Hammerspoon
+
+| Hotkey | Action |
+|---|---|
+| ⌘⌥H | Hotkey cheatsheet |
+| Hyper+/ | KSheet (app menu shortcuts) |
+| Hyper+Y | Hammerspoon console |
+| Hyper+R | Reload config |
+
+## Automatic behaviour
+
+- **ReloadConfiguration**: saving any `.lua` file in `~/.hammerspoon` reloads
+  the config, so Hyper+R is rarely needed.
+- **SpeedMenu**: upload and download speed in the menu bar. It rescans when the
+  network changes (Wi-Fi, Ethernet, VPN) and when switching between light and
+  dark mode.
+- **MicMute**: microphone status in the menu bar.
+- **MountedVolumes**: disks with free-space pie charts on the desktop.
+- **Desktop widgets**: CircleClock, TimeFlow, HCalendar and BingDaily (daily
+  Bing wallpaper).
+- **FadeLogo**: the Hammerspoon logo fades in on load.
+
+## Spoons
+
+Spoons are committed in `Spoons/` so the config works offline and on a fresh
+machine. Spoons loaded with `Install:andUse(...)` in `init.lua` are fetched by
+SpoonInstall if they're missing. Spoons loaded with `hs.loadSpoon(...)` must
+already be in `Spoons/`.
+
+Installed but not currently used: MouseCircle, TimeMachineProgress.
+
+## License
+
+MIT, see [LICENSE](LICENSE). The bundled spoons in `Spoons/` belong to their
+respective authors and are MIT-licensed as noted in each spoon's `init.lua`.
