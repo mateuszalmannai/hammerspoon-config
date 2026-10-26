@@ -103,6 +103,13 @@ Install:andUse("TimeFlow")
 Install:andUse("HCalendar")
 Install:andUse("BingDaily")
 
+-- HSearch: search box with sources picked by keyword + Tab
+-- (d dates, n notes, s thesaurus, t Brave tabs)
+hs.loadSpoon("HSearch")
+hotkeyCheatsheet.bindHotkey(hyper, "g", function()
+  spoon.HSearch:toggleShow()
+end, "HSearch (d/n/s/t + Tab: dates, notes, thesaurus, Brave tabs)")
+
 -- Desktop widget layout: keep widgets inside the usable screen area (below the
 -- menu bar, clear of the Dock) with a consistent margin. Re-applied whenever
 -- the screen configuration changes.
