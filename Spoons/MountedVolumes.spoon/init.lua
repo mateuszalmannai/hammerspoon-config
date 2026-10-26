@@ -155,6 +155,7 @@ local updateVolumes = function(...)
     newFrame.h = 10 + #volumeData * (height + 10)
     newFrame.w = 10 + height + 10 + width + 10 + ejectTextSize.w + 10
     if not obj.growsDownwards then newFrame.y = obj.location.y - newFrame.h end
+    if obj.growsLeftwards then newFrame.x = obj.location.x - newFrame.w end
     obj.canvas:frame(newFrame):show()
 end
 
@@ -231,6 +232,14 @@ obj.location = { x = 20, y = 22 }
 ---
 --- Changes will take effect when the next volume change occurs, when the next usage check occurs (see `MountedVolumes.checkInterval`), or when `MountedVolumes:show` is invoked, whichever occurs first.
 obj.growsDownwards = true
+
+--- MountedVolumes.growsLeftwards
+--- Variable
+--- A boolean, default false, indicating whether the display grows leftwards or rightwards as its width changes (e.g. longer volume names or free-space labels).
+--- If this value is true, then `MountedVolumes.location.x` specifies the right edge of the display.  If this value is false, it specifies the left edge.
+---
+--- Changes will take effect when the next volume change occurs, when the next usage check occurs (see `MountedVolumes.checkInterval`), or when `MountedVolumes:show` is invoked, whichever occurs first.
+obj.growsLeftwards = false
 
 --- MountedVolumes.checkInterval
 --- Variable

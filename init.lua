@@ -103,6 +103,39 @@ Install:andUse("TimeFlow")
 Install:andUse("HCalendar")
 Install:andUse("BingDaily")
 
+-- Desktop widget layout: keep widgets inside the usable screen area (below the
+-- menu bar, clear of the Dock) with a consistent margin. Re-applied whenever
+-- the screen configuration changes.
+local function layoutDesktopWidgets()
+  local f = hs.screen.mainScreen():frame()
+  local margin = 20
+
+  local colRight = f.x + f.w - margin
+
+  -- centre: CircleClock
+  local cc = spoon.CircleClock.canvas
+  local ccSize = cc:size()
+  cc:topLeft({ x = f.x + (f.w - ccSize.w) / 2, y = f.y + (f.h - ccSize.h) / 2 })
+
+  -- top-right: mounted volumes, anchored by its right edge so it stays
+  -- aligned as its width changes
+  local mv = spoon.MountedVolumes
+  mv.growsLeftwards = true
+  mv.location = { x = colRight, y = f.y + margin }
+  if mv.canvas and mv.canvas:isShowing() then mv:show() end
+
+  -- bottom-right: TimeFlow
+  local tf = spoon.TimeFlow.canvas
+  local tfSize = tf:size()
+  tf:topLeft({ x = colRight - tfSize.w, y = f.y + f.h - tfSize.h - margin })
+
+  -- bottom-left: calendar strip
+  local hc = spoon.HCalendar.canvas
+  hc:topLeft({ x = f.x + margin, y = f.y + f.h - hc:size().h - margin })
+end
+layoutDesktopWidgets()
+widgetScreenWatcher = hs.screen.watcher.new(layoutDesktopWidgets):start()
+
 
 print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> init.lua loaded - " .. os.date("%Y-%m-%d-%X"))
 hs.alert.show("Hammerspoon config loaded")
