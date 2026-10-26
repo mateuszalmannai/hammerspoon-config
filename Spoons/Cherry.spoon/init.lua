@@ -44,6 +44,9 @@ obj.dbFile = hs.configdir .. "/cherry.db"
 -- stopped pomodoros that ran for less than this many seconds are not logged
 obj.minLogSeconds = 60
 
+-- font for the stats overlay; must be monospaced so the columns line up
+obj.statsFont = { name = "Menlo", size = 16 }
+
 obj.defaultMapping = {
   start = {{"cmd", "ctrl", "alt"}, "C"}
 }
@@ -56,7 +59,7 @@ obj.defaultMapping = {
 --- Parameters:
 ---  * mapping - A table containing hotkey details for the following items:
 ---   * start - start the pomodoro timer, or pause/resume it if one is in progress (Default: cmd-ctrl-alt-C)
----   * stats - show pomodoro statistics in the console (Default: none)
+---   * stats - show or hide the pomodoro statistics overlay (Default: none)
 function obj:bindHotkeys(mapping)
   if self.hotkeys then
     for _, hotkey in pairs(self.hotkeys) do hotkey:delete() end
@@ -176,21 +179,12 @@ local function formatMinutes(minutes)
 end
 
 
---- Cherry:stats()
---- Method
---- Prints pomodoro statistics to the Hammerspoon console
----
---- Parameters:
----  * None
----
---- Returns:
----  * None
-function obj:stats()
-  hs.openConsole()
+-- Builds the stats report as plain text, or returns nil if the database can't be opened.
+function obj:statsText()
   local db = self:openDb()
-  if not db then return end
+  if not db then return nil end
 
-  local lines = { "", "🍒 Pomodoro stats", "" }
+  local lines = { "🍒 Pomodoro stats", "" }
   local function add(fmt, ...) table.insert(lines, string.format(fmt, ...)) end
 
   local todayN, todayMin = completedSince(db, "date('now', 'localtime')")
@@ -244,7 +238,60 @@ function obj:stats()
     add("  %s  %s %s", os.date("%a %d %b", dayTime(offset)), string.rep("█", width), n > 0 and n or "")
   end
 
-  print(table.concat(lines, "\n"))
+  return table.concat(lines, "\n")
+end
+
+
+function obj:hideStats()
+  if self.statsCanvas then
+    self.statsCanvas:delete()
+    self.statsCanvas = nil
+  end
+  if self.statsEscape then
+    self.statsEscape:delete()
+    self.statsEscape = nil
+  end
+end
+
+
+--- Cherry:stats()
+--- Method
+--- Shows pomodoro statistics in an overlay on the current screen, or hides it if already shown.
+--- Click the overlay or press Escape to dismiss it.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+function obj:stats()
+  if self.statsCanvas then return self:hideStats() end
+  local text = self:statsText()
+  if not text then return end
+
+  local styled = hs.styledtext.new(text, { font = self.statsFont, color = { white = 1 } })
+  local padding = 24
+  local canvas = hs.canvas.new({ x = 0, y = 0, w = 0, h = 0 })
+  local size = canvas:minimumTextSize(styled)
+  -- a little slack so the widest line never wraps
+  local textW, textH = math.ceil(size.w) + 4, math.ceil(size.h)
+  local w, h = textW + 2 * padding, textH + 2 * padding
+  local screen = hs.screen.mainScreen():frame()
+  canvas:frame({ x = screen.x + (screen.w - w) / 2, y = screen.y + (screen.h - h) / 2, w = w, h = h })
+  canvas:appendElements(
+    { type = "rectangle", action = "fill", fillColor = { white = 0, alpha = 0.85 },
+      roundedRectRadii = { xRadius = 12, yRadius = 12 }, trackMouseUp = true },
+    { type = "text", text = styled, frame = { x = padding, y = padding, w = textW, h = textH },
+      trackMouseUp = true }
+  )
+  canvas:level(hs.canvas.windowLevels.modalPanel)
+  -- show on whichever desktop is current, rather than switching desktops
+  canvas:behaviorAsLabels({ "canJoinAllSpaces" })
+  canvas:mouseCallback(function() self:hideStats() end)
+  canvas:show()
+
+  self.statsCanvas = canvas
+  self.statsEscape = hs.hotkey.bind({}, "escape", function() self:hideStats() end)
 end
 
 

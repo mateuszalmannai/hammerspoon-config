@@ -49,7 +49,8 @@ local function escapeHTML(s)
 end
 
 -- Create a string representing modifiers using symbols, in the same order
--- hs.hotkey uses for its idx field (⌘⌃⌥⇧), so combos match getHotkeys()
+-- hs.hotkey uses for its idx field (⌘⌃⌥⇧), so combos match getHotkeys().
+-- Like hs.hotkey, all four modifiers together are shown as ✧ (hyper).
 local function modifiersToString(mods)
   local present = {}
   if type(mods) == "table" then
@@ -57,6 +58,7 @@ local function modifiersToString(mods)
       if type(m) == "string" then present[m:lower()] = true end
     end
   end
+  if present.cmd and present.ctrl and present.alt and present.shift then return '✧' end
   local out = ''
   if present.cmd then out = out .. '⌘' end
   if present.ctrl then out = out .. '⌃' end
