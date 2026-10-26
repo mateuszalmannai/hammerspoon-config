@@ -94,7 +94,8 @@ local updateVolumes = function(...)
     local legends, height, width = {}, 0, 0
     for i,v in ipairs(volumeData) do
         table.insert(legends, stext.new(
-            string.format("%s\n%s of %s %s\nAvailable", v[1], v[3], v[2], v[6]),
+            string.format("%s\n%s of %s %s\nAvailable (%d%% used)", v[1], v[3], v[2], v[6],
+                math.floor((1 - v[3] / v[2]) * 100 + .5)),
             obj.textStyle
         ))
         local tmp = obj.canvas:minimumTextSize(legends[#legends])
@@ -103,7 +104,7 @@ local updateVolumes = function(...)
 
     local ejectText     = stext.new("⏏", {
         font = stext.defaultFonts.menuBar ,
-        color = { white = obj.enableEjectButton and 0 or .3 },
+        color = { white = 1, alpha = obj.enableEjectButton and .6 or .25 },
     })
     local ejectTextSize = obj.canvas:minimumTextSize(ejectText)
 

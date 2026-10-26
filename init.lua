@@ -67,6 +67,14 @@ end, "Show big clock (AClock)")
 
 -- MountedVolumes: disks with free-space pie charts on the desktop
 hs.loadSpoon("MountedVolumes")
+-- styled to match the other desktop widgets: faint dark panel, translucent white text
+spoon.MountedVolumes.backgroundColor  = { hex = "#000000", alpha = 0.25 }
+spoon.MountedVolumes.backgroundBorder = { hex = "#FFFFFF", alpha = 0.1 }
+spoon.MountedVolumes.textStyle = {
+  font = { name = "Menlo", size = 10 },
+  color = { hex = "#FFFFFF", alpha = 0.6 },
+  paragraphStyle = { alignment = "center" },
+}
 spoon.MountedVolumes:show()
 spoon.MountedVolumes:bindHotkeys({ toggle = { hyper, "m" } })
 hotkeyCheatsheet.describe(hyper, "m", "Toggle mounted volumes on desktop")
@@ -104,6 +112,18 @@ Install:andUse("FadeLogo",
 )
 
 Install:andUse("CircleClock")
+-- recolour the clock face (numbers and ticks are baked into watchbg.png) to the
+-- translucent light grey used by the other desktop widgets
+do
+  local face = spoon.CircleClock.canvas[1].image
+  local size = face:size()
+  local tint = hs.canvas.new({ x = 0, y = 0, w = size.w, h = size.h })
+  tint[1] = { type = "image", image = face, imageScaling = "scaleToFit" }
+  tint[2] = { type = "rectangle", action = "fill", compositeRule = "sourceIn",
+              fillColor = { hex = "#FFFFFF", alpha = 0.6 } }
+  spoon.CircleClock.canvas[1].image = tint:imageFromCanvas()
+  tint:delete()
+end
 Install:andUse("TimeFlow")
 Install:andUse("HCalendar")
 Install:andUse("BingDaily")
@@ -135,10 +155,10 @@ local function layoutDesktopWidgets()
 
   local colRight = f.x + f.w - margin
 
-  -- centre: CircleClock
+  -- right edge, vertically centred: CircleClock
   local cc = spoon.CircleClock.canvas
   local ccSize = cc:size()
-  cc:topLeft({ x = f.x + (f.w - ccSize.w) / 2, y = f.y + (f.h - ccSize.h) / 2 })
+  cc:topLeft({ x = colRight - ccSize.w, y = f.y + (f.h - ccSize.h) / 2 })
 
   -- top-right: mounted volumes, anchored by its right edge so it stays
   -- aligned as its width changes
