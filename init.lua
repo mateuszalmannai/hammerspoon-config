@@ -103,6 +103,12 @@ Install:andUse("TimeFlow")
 Install:andUse("HCalendar")
 Install:andUse("BingDaily")
 
+-- Cherry: 25-minute Pomodoro timer, shown in the menu bar while running
+hs.loadSpoon("Cherry")
+spoon.Cherry.sound = hs.sound.getByName("Glass")
+spoon.Cherry:bindHotkeys({ start = { hyper, "p" } })
+hotkeyCheatsheet.describe(hyper, "p", "Pomodoro timer: start, or pause/resume (Cherry)")
+
 -- HSearch: search box with sources picked by keyword + Tab
 -- (d dates, n notes, s thesaurus, t Brave tabs)
 hs.loadSpoon("HSearch")
