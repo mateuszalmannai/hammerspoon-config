@@ -26,8 +26,13 @@ leader.bindLeader()
 hs.loadSpoon("SpoonInstall")
 Install=spoon.SpoonInstall
 
--- ReloadConfiguration: reload automatically when a .lua file in ~/.hammerspoon changes
-Install:andUse("ReloadConfiguration", { start = true })
+-- Reload automatically when a .lua file in ~/.hammerspoon changes.
+-- (Not the ReloadConfiguration spoon: it reloads on any change, e.g. Cherry writing cherry.db.)
+configWatcher = hs.pathwatcher.new(hs.configdir, function(paths)
+  for _, path in ipairs(paths) do
+    if path:sub(-4) == ".lua" then return hs.reload() end
+  end
+end):start()
 
 -- Miro Windows Manager
 hs.loadSpoon("MiroWindowsManager")
@@ -103,11 +108,16 @@ Install:andUse("TimeFlow")
 Install:andUse("HCalendar")
 Install:andUse("BingDaily")
 
+-- Bring the console to the current desktop when opened (e.g. for Cherry stats),
+-- rather than switching to whichever desktop it was last on
+hs.console.behaviorAsLabels({ "fullScreenPrimary", "moveToActiveSpace" })
+
 -- Cherry: 25-minute Pomodoro timer, shown in the menu bar while running
 hs.loadSpoon("Cherry")
 spoon.Cherry.sound = hs.sound.getByName("Glass")
-spoon.Cherry:bindHotkeys({ start = { hyper, "p" } })
+spoon.Cherry:bindHotkeys({ start = { hyper, "p" }, stats = { { "ctrl", "alt", "cmd", "shift" }, "p" } })
 hotkeyCheatsheet.describe(hyper, "p", "Pomodoro timer: start, or pause/resume (Cherry)")
+hotkeyCheatsheet.describe({ "ctrl", "alt", "cmd", "shift" }, "p", "Pomodoro stats in the console (Cherry)")
 
 -- HSearch: search box with sources picked by keyword + Tab
 -- (d dates, n notes, s thesaurus, t Brave tabs)
