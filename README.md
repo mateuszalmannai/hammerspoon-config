@@ -131,6 +131,7 @@ Escape cancels.
 | Hyper+M | Toggle mounted volumes on the desktop |
 | Hyper+W | Remind calendar popup (RemindCalendar). While open: `1` one week, `2` two weeks, `m` month; Esc or click closes |
 | Hyper+T | Taskwarrior popup (TaskwarriorViews) for the active context, in taskwarrior's colours. While open: `n` next, `b` weekly burndown, `h` monthly history, `s` project summary; Esc or click closes. Read-only, never syncs |
+| Hyper+N | Quick note (QuickNote): one-line box; Enter adds `- <timestamp> text` to the Uncategorised section of `~/markdown/running_notes/inbx.md`, Esc cancels. Clicking away keeps the text for next time |
 | Hyper+G | Search box (HSearch): type `d` / `n` / `s` / `t` + Tab for dates, notes, thesaurus, Brave tabs |
 | Hyper+P | Pomodoro timer (Cherry): start, or pause/resume. Shown in the menu bar while running |
 | Hyper+⇧P | Pomodoro stats overlay (Cherry). Esc or click closes |
@@ -175,7 +176,8 @@ TimeMachineProgress.
 
 Logic that doesn't need `hs.*` lives in plain Lua files inside the spoon
 or module (`Spoons/Cherry.spoon/days.lua`,
-`Spoons/TaskwarriorViews.spoon/ansi.lua`, `modules/popupLayout.lua`,
+`Spoons/TaskwarriorViews.spoon/ansi.lua`, `Spoons/QuickNote.spoon/insert.lua`,
+`modules/popupLayout.lua`,
 `modules/fuzzy.lua`) and is tested
 with
 [busted](https://lunarmodules.github.io/busted/); specs are in `spec/`.

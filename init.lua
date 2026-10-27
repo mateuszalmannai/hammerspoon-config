@@ -140,6 +140,12 @@ hotkeyCheatsheet.bindHotkey(hyper, "t", function()
   spoon.TaskwarriorViews:toggle()
 end, "Taskwarrior popup: show or hide (n/b/h/s: next, burndown, history, summary; Esc or click closes)")
 
+-- QuickNote: one-line box that adds a timestamped note to the inbox
+hs.loadSpoon("QuickNote")
+hotkeyCheatsheet.bindHotkey(hyper, "n", function()
+  spoon.QuickNote:toggle()
+end, "Quick note to inbox (inbx.md, Uncategorised): Enter saves, Esc cancels")
+
 -- Bring the console to the current desktop when opened (e.g. for Cherry stats),
 -- rather than switching to whichever desktop it was last on
 hs.console.behaviorAsLabels({ "fullScreenPrimary", "moveToActiveSpace" })
