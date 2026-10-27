@@ -140,17 +140,8 @@ end
 
 -- Stats
 
--- Local calendar date `offset` days from today, as a time value at noon (safe across DST changes).
-local function dayTime(offset)
-  local t = os.date("*t")
-  t.day = t.day + offset
-  t.hour, t.min, t.sec = 12, 0, 0
-  return os.time(t)
-end
-
-local function dayKey(offset)
-  return os.date("%Y-%m-%d", dayTime(offset))
-end
+local days = dofile(hs.spoons.resourcePath("days.lua"))
+local dayTime, dayKey = days.dayTime, days.dayKey
 
 local DAY = "date(finish, 'unixepoch', 'localtime')"
 
@@ -204,16 +195,13 @@ function obj:statsText()
   end
 
   -- Streak: consecutive days with a completed pomodoro, ending today, or yesterday if today has none yet
-  local days = queryRows(db, string.format([[
+  local completedDays = {}
+  for _, row in ipairs(queryRows(db, string.format([[
     SELECT DISTINCT %s AS day FROM pomodoros WHERE outcome = 'completed' ORDER BY day DESC
-  ]], DAY))
-  local streak = 0
-  local expected = (days[1] and days[1].day == dayKey(0)) and 0 or -1
-  for _, row in ipairs(days) do
-    if row.day ~= dayKey(expected) then break end
-    streak = streak + 1
-    expected = expected - 1
+  ]], DAY))) do
+    table.insert(completedDays, row.day)
   end
+  local streak = days.streak(completedDays)
   add("  Streak     %4d   day%s", streak, streak == 1 and "" or "s")
 
   local perDay = {}
