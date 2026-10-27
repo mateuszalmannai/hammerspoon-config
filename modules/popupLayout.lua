@@ -1,5 +1,6 @@
--- Text and sizing helpers for the RemindCalendar popup. Plain Lua (no hs.*), so
--- they can be tested outside Hammerspoon; see spec/remind_calendar_layout_spec.lua.
+-- Text and sizing helpers for the text popups (RemindCalendar, TaskwarriorViews).
+-- Plain Lua (no hs.*), so they can be tested outside Hammerspoon; see
+-- spec/popup_layout_spec.lua.
 
 local layout = {}
 

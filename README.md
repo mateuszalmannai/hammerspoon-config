@@ -47,6 +47,7 @@ init.lua                      entry point: loads modules and spoons
 modules/
   hotkeyCheatsheet.lua        ⌘⌥H searchable cheatsheet + bindHotkey/describe helpers
   fuzzy.lua                   fuzzy matching for the cheatsheet search
+  popupLayout.lua             font fitting for the Remind and Taskwarrior popups
   app_launcher.lua            launch-or-focus app hotkeys
   window_management.lua       move window to display N
   network.lua                 ping check
@@ -129,6 +130,7 @@ Escape cancels.
 | Hyper+C | Big clock in the middle of the screen (AClock) |
 | Hyper+M | Toggle mounted volumes on the desktop |
 | Hyper+W | Remind calendar popup (RemindCalendar). While open: `1` one week, `2` two weeks, `m` month; Esc or click closes |
+| Hyper+T | Taskwarrior popup (TaskwarriorViews) for the active context, in taskwarrior's colours. While open: `n` next, `b` weekly burndown, `h` monthly history, `s` project summary; Esc or click closes. Read-only, never syncs |
 | Hyper+G | Search box (HSearch): type `d` / `n` / `s` / `t` + Tab for dates, notes, thesaurus, Brave tabs |
 | Hyper+P | Pomodoro timer (Cherry): start, or pause/resume. Shown in the menu bar while running |
 | Hyper+⇧P | Pomodoro stats overlay (Cherry). Esc or click closes |
@@ -173,7 +175,8 @@ TimeMachineProgress.
 
 Logic that doesn't need `hs.*` lives in plain Lua files inside the spoon
 or module (`Spoons/Cherry.spoon/days.lua`,
-`Spoons/RemindCalendar.spoon/layout.lua`, `modules/fuzzy.lua`) and is tested
+`Spoons/TaskwarriorViews.spoon/ansi.lua`, `modules/popupLayout.lua`,
+`modules/fuzzy.lua`) and is tested
 with
 [busted](https://lunarmodules.github.io/busted/); specs are in `spec/`.
 Hammerspoon runs Lua 5.4, so install busted for 5.4 rather than Homebrew's

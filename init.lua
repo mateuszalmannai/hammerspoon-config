@@ -134,6 +134,12 @@ hotkeyCheatsheet.bindHotkey(hyper, "w", function()
   spoon.RemindCalendar:toggle()
 end, "Remind calendar popup: show or hide (1/2/m: week, two weeks, month; Esc or click closes)")
 
+-- TaskwarriorViews: taskwarrior reports for the active context in a popup
+hs.loadSpoon("TaskwarriorViews")
+hotkeyCheatsheet.bindHotkey(hyper, "t", function()
+  spoon.TaskwarriorViews:toggle()
+end, "Taskwarrior popup: show or hide (n/b/h/s: next, burndown, history, summary; Esc or click closes)")
+
 -- Bring the console to the current desktop when opened (e.g. for Cherry stats),
 -- rather than switching to whichever desktop it was last on
 hs.console.behaviorAsLabels({ "fullScreenPrimary", "moveToActiveSpace" })

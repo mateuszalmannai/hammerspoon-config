@@ -7,7 +7,7 @@
 
 local canvas = require("hs.canvas")
 local task   = require("hs.task")
-local layout = dofile(hs.spoons.resourcePath("layout.lua"))
+local layout = require("modules.popupLayout")
 
 local obj = {
     name    = "RemindCalendar",

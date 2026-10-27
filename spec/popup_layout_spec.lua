@@ -1,4 +1,4 @@
-local layout = dofile("Spoons/RemindCalendar.spoon/layout.lua")
+local layout = require("modules.popupLayout")
 
 local LRM = "\u{200E}"
 
