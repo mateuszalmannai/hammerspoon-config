@@ -38,7 +38,7 @@ obj.views = {
 --- RemindCalendar.defaultView
 --- Variable
 --- View shown when no view is given to show() or toggle().
-obj.defaultView = "twoWeeks"
+obj.defaultView = "week"
 
 --- RemindCalendar.font
 --- Variable
