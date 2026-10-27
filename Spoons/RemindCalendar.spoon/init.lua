@@ -7,6 +7,7 @@
 
 local canvas = require("hs.canvas")
 local task   = require("hs.task")
+local layout = dofile(hs.spoons.resourcePath("layout.lua"))
 
 local obj = {
     name    = "RemindCalendar",
@@ -58,27 +59,21 @@ obj.backgroundColor = { white = 0, alpha = 0.6 }
 local padding = 24
 local screenMargin = 20
 
--- Styled text at the largest font size (down to minFontSize) that fits on the screen.
-local function fitText(c, text, screen)
-    local maxW = screen.w - 2 * (padding + screenMargin)
-    local maxH = screen.h - 2 * (padding + screenMargin)
-    local styled, size
-    for fontSize = obj.font.size, obj.minFontSize, -1 do
-        styled = hs.styledtext.new(text, {
-            font = { name = obj.font.name, size = fontSize }, color = { white = 1 },
-        })
-        size = c:minimumTextSize(styled)
-        if size.w <= maxW and size.h <= maxH then break end
-    end
-    return styled, size
-end
-
 local function render(text)
-    -- remind wraps each cell in left-to-right marks (U+200E); they render as gaps in Menlo
-    text = text:gsub("\u{200E}", ""):gsub("\n+$", "")
+    text = layout.clean(text)
     local screen = hs.screen.mainScreen():frame()
     local c = canvas.new({ x = 0, y = 0, w = 0, h = 0 })
-    local styled, size = fitText(c, text, screen)
+    local function styledAt(fontSize)
+        return hs.styledtext.new(text, {
+            font = { name = obj.font.name, size = fontSize }, color = { white = 1 },
+        })
+    end
+    -- the largest font size (down to minFontSize) at which the popup fits on the screen
+    local fontSize, size = layout.fitFontSize(
+        function(fs) return c:minimumTextSize(styledAt(fs)) end,
+        screen.w - 2 * (padding + screenMargin), screen.h - 2 * (padding + screenMargin),
+        obj.font.size, obj.minFontSize)
+    local styled = styledAt(fontSize)
     -- a little slack so the widest line never wraps
     local textW, textH = math.ceil(size.w) + 4, math.ceil(size.h)
     local w, h = textW + 2 * padding, textH + 2 * padding

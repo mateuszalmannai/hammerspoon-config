@@ -49,6 +49,8 @@ modules/
   misc_hotkeys.lua            clipboard, lock/sleep, console, reload, etc.
   leader.lua                  Hyper+Space leader menu (RecursiveBinder)
 Spoons/                       vendored spoons (see below)
+spec/                         busted unit tests (see Tests)
+Makefile                      `make test`
 ```
 
 ### Adding a hotkey
@@ -122,6 +124,10 @@ Escape cancels.
 | ⌥⇧T | Show the current time |
 | Hyper+C | Big clock in the middle of the screen (AClock) |
 | Hyper+M | Toggle mounted volumes on the desktop |
+| Hyper+W | Remind calendar popup (RemindCalendar). While open: `1` one week, `2` two weeks, `m` month; Esc or click closes |
+| Hyper+G | Search box (HSearch): type `d` / `n` / `s` / `t` + Tab for dates, notes, thesaurus, Brave tabs |
+| Hyper+P | Pomodoro timer (Cherry): start, or pause/resume. Shown in the menu bar while running |
+| Hyper+⇧P | Pomodoro stats overlay (Cherry). Esc or click closes |
 | ⌃/ | Mic mute: tap to toggle, hold for push-to-talk (MicMute) |
 
 ### Hammerspoon
@@ -135,8 +141,11 @@ Escape cancels.
 
 ## Automatic behaviour
 
-- **ReloadConfiguration**: saving any `.lua` file in `~/.hammerspoon` reloads
-  the config, so Hyper+R is rarely needed.
+- **Auto-reload**: saving any `.lua` file in `~/.hammerspoon` reloads the
+  config, so Hyper+R is rarely needed. Other changes (e.g. Cherry writing
+  `cherry.db`) don't trigger a reload.
+- **Cherry**: finished and abandoned pomodoros are logged to `cherry.db`
+  (SQLite, git-ignored) for the stats overlay.
 - **SpeedMenu**: upload and download speed in the menu bar. It rescans when the
   network changes (Wi-Fi, Ethernet, VPN) and when switching between light and
   dark mode.
@@ -153,7 +162,26 @@ machine. Spoons loaded with `Install:andUse(...)` in `init.lua` are fetched by
 SpoonInstall if they're missing. Spoons loaded with `hs.loadSpoon(...)` must
 already be in `Spoons/`.
 
-Installed but not currently used: MouseCircle, TimeMachineProgress.
+Installed but not currently used: MouseCircle, ReloadConfiguration,
+TimeMachineProgress.
+
+## Tests
+
+Logic that doesn't need `hs.*` lives in plain Lua files inside the spoon
+(`Spoons/Cherry.spoon/days.lua`, `Spoons/RemindCalendar.spoon/layout.lua`) and
+is tested with
+[busted](https://lunarmodules.github.io/busted/); specs are in `spec/`.
+Hammerspoon runs Lua 5.4, so install busted for 5.4 rather than Homebrew's
+default `lua`:
+
+```sh
+brew install lua@5.4 luarocks
+luarocks --lua-version 5.4 --lua-dir "$(brew --prefix lua@5.4)" install busted
+make test
+```
+
+`make test` pins `TZ=Europe/Berlin` so the daylight-saving cases are
+deterministic.
 
 ## License
 
