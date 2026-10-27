@@ -132,7 +132,7 @@ Install:andUse("BingDaily")
 hs.loadSpoon("RemindCalendar")
 hotkeyCheatsheet.bindHotkey(hyper, "w", function()
   spoon.RemindCalendar:toggle()
-end, "Remind calendar popup: show or hide (Esc or click also closes it)")
+end, "Remind calendar popup: show or hide (1/2/m: week, two weeks, month; Esc or click closes)")
 
 -- Bring the console to the current desktop when opened (e.g. for Cherry stats),
 -- rather than switching to whichever desktop it was last on
