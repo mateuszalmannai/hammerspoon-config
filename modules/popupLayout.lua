@@ -24,4 +24,26 @@ function layout.fitFontSize(measure, maxW, maxH, maxSize, minSize)
     return minSize, measure(minSize)
 end
 
+-- The popup's first line: the current view's name, an optional dim subtitle,
+-- then each view's key and label, the current one bright and the others dim:
+--   "week      1 week  2 two weeks  m month"
+-- `views` is a list of { name, key, label }; label defaults to name. Returns
+-- { text, bold, dim } segments ending in a blank line, for the popup to style.
+function layout.header(views, current, subtitle)
+    local title = current
+    for _, view in ipairs(views) do
+        if view.name == current then title = view.label or view.name end
+    end
+    local segments = { { text = title, bold = true } }
+    if subtitle then segments[#segments + 1] = { text = " · " .. subtitle, dim = true } end
+    segments[#segments + 1] = { text = "      " }
+    for i, view in ipairs(views) do
+        local dim = view.name ~= current
+        segments[#segments + 1] = { text = view.key, bold = true, dim = dim }
+        segments[#segments + 1] = { text = " " .. (view.label or view.name) .. (i < #views and "  " or ""), dim = dim }
+    end
+    segments[#segments + 1] = { text = "\n\n" }
+    return segments
+end
+
 return layout

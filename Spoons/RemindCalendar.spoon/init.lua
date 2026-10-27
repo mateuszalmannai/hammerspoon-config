@@ -28,12 +28,13 @@ obj.reminders = os.getenv("HOME") .. "/markdown/synched_reminders"
 
 --- RemindCalendar.views
 --- Variable
---- Calendar options for remind per view: -c+1 is one week, -c+2 two weeks, -c a month;
---- -m starts weeks on Monday. `key` switches to the view while the popup is open.
+--- The views, in the order the header lists them. `args` are remind's calendar
+--- options: -c+1 is one week, -c+2 two weeks, -c a month; -m starts weeks on
+--- Monday. `key` switches to the view while the popup is open.
 obj.views = {
-    week     = { key = "1", args = { "-c+1", "-m", "-w100" } },
-    twoWeeks = { key = "2", args = { "-c+2", "-m", "-w100" } },
-    month    = { key = "m", args = { "-c",   "-m", "-w160" } },
+    { name = "week",     key = "1", label = "week",      args = { "-c+1", "-m", "-w100" } },
+    { name = "twoWeeks", key = "2", label = "two weeks", args = { "-c+2", "-m", "-w100" } },
+    { name = "month",    key = "m", label = "month",     args = { "-c",   "-m", "-w160" } },
 }
 
 --- RemindCalendar.defaultView
@@ -44,7 +45,7 @@ obj.defaultView = "week"
 --- RemindCalendar.font
 --- Variable
 --- Font for the popup; must be monospaced so the calendar grid lines up.
-obj.font = { name = "Menlo", size = 14 }
+obj.font = { name = "Menlo", boldName = "Menlo-Bold", size = 14 }
 
 --- RemindCalendar.minFontSize
 --- Variable
@@ -59,14 +60,26 @@ obj.backgroundColor = { white = 0, alpha = 0.6 }
 local padding = 24
 local screenMargin = 20
 
-local function render(text)
-    text = layout.clean(text)
+local function findView(name)
+    for _, view in ipairs(obj.views) do
+        if view.name == name then return view end
+    end
+end
+
+local function render(viewName, text)
+    local segments = layout.header(obj.views, viewName)
+    segments[#segments + 1] = { text = layout.clean(text) }
     local screen = hs.screen.mainScreen():frame()
     local c = canvas.new({ x = 0, y = 0, w = 0, h = 0 })
     local function styledAt(fontSize)
-        return hs.styledtext.new(text, {
-            font = { name = obj.font.name, size = fontSize }, color = { white = 1 },
-        })
+        local out = hs.styledtext.new("")
+        for _, s in ipairs(segments) do
+            out = out .. hs.styledtext.new(s.text, {
+                font = { name = s.bold and obj.font.boldName or obj.font.name, size = fontSize },
+                color = { white = 1, alpha = s.dim and 0.5 or 1 },
+            })
+        end
+        return out
     end
     -- the largest font size (down to minFontSize) at which the popup fits on the screen
     local fontSize, size = layout.fitFontSize(
@@ -93,9 +106,9 @@ local function render(text)
     obj.canvas = c
     -- popup-only keys: Escape closes, each view's key switches to it
     obj._keys = { hs.hotkey.bind({}, "escape", function() obj:hide() end) }
-    for name, view in pairs(obj.views) do
-        if view.key and name ~= obj.view then
-            table.insert(obj._keys, hs.hotkey.bind({}, view.key, function() obj:show(name) end))
+    for _, view in ipairs(obj.views) do
+        if view.name ~= viewName then
+            table.insert(obj._keys, hs.hotkey.bind({}, view.key, function() obj:show(view.name) end))
         end
     end
 end
@@ -108,19 +121,19 @@ end
 ---  * view - name of a view in RemindCalendar.views (default: RemindCalendar.defaultView)
 function obj:show(view)
     view = view or self.defaultView
-    if not self.views[view] then
+    if not findView(view) then
         print("RemindCalendar: unknown view " .. tostring(view))
         return self
     end
     if self._task and self._task:isRunning() then return self end
     local args = {}
-    for _, a in ipairs(self.views[view].args) do table.insert(args, a) end
+    for _, a in ipairs(findView(view).args) do table.insert(args, a) end
     table.insert(args, self.reminders)
     self._task = task.new(self.remindPath, function(code, stdout, stderr)
         if code == 0 then
             self:hide()
             self.view = view
-            render(stdout)
+            render(view, stdout)
         else
             print("RemindCalendar: remind exited " .. code .. ": " .. stderr)
         end

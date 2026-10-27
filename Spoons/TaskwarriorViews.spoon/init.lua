@@ -71,23 +71,6 @@ local function findView(name)
     end
 end
 
--- "next · context: work      n next  b burndown  h history  s summary", with
--- the current view's key highlighted
-local function headerSegments(viewName, context)
-    local segments = {
-        { text = viewName, bold = true },
-        { text = " · context: " .. (context ~= "" and context or "none"), dim = true },
-        { text = "      " },
-    }
-    for i, view in ipairs(obj.views) do
-        local current = view.name == viewName
-        segments[#segments + 1] = { text = view.key, bold = true, dim = not current }
-        segments[#segments + 1] = { text = " " .. view.name .. (i < #obj.views and "  " or ""), dim = not current }
-    end
-    segments[#segments + 1] = { text = "\n\n" }
-    return segments
-end
-
 -- Segments (header ones and ansi.parse ones) as styled text at fontSize
 local function styled(segments, fontSize)
     local out = hs.styledtext.new("")
@@ -172,7 +155,7 @@ function obj:show(viewName)
                 print("TaskwarriorViews: task exited " .. code .. ": " .. stderr)
                 body = { { text = "task exited " .. code .. ":\n" .. stderr:gsub("%s+$", "") } }
             end
-            local segments = headerSegments(view.name, context)
+            local segments = layout.header(self.views, view.name, "context: " .. (context ~= "" and context or "none"))
             for _, s in ipairs(body) do table.insert(segments, s) end
             self:hide()
             self.view = view.name

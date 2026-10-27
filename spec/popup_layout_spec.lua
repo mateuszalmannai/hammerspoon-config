@@ -78,3 +78,42 @@ describe("layout.fitFontSize", function()
     assert.are.equal(8, (layout.fitFontSize(measure, 1800, 1100, 8, 9)))
   end)
 end)
+
+describe("layout.header", function()
+  local views = {
+    { name = "week", key = "1" },
+    { name = "twoWeeks", key = "2", label = "two weeks" },
+    { name = "month", key = "m" },
+  }
+
+  local function text(segments)
+    local out = ""
+    for _, s in ipairs(segments) do out = out .. s.text end
+    return out
+  end
+
+  it("lists the current view's label, then every key and label, then a blank line", function()
+    assert.are.equal("two weeks      1 week  2 two weeks  m month\n\n",
+      text(layout.header(views, "twoWeeks")))
+  end)
+
+  it("adds a dim subtitle after the title", function()
+    local segments = layout.header(views, "week", "context: work")
+    assert.are.equal("week · context: work      1 week  2 two weeks  m month\n\n", text(segments))
+    assert.are.same({ text = " · context: work", dim = true }, segments[2])
+  end)
+
+  it("makes the title bold and dims every view but the current one", function()
+    local segments = layout.header(views, "month")
+    assert.are.same({ text = "month", bold = true }, segments[1])
+    local keys = {}
+    for _, s in ipairs(segments) do
+      if s.bold and #s.text == 1 then keys[s.text] = s.dim end
+    end
+    assert.are.same({ ["1"] = true, ["2"] = true, m = false }, keys)
+  end)
+
+  it("uses the name as the title for a view that isn't listed", function()
+    assert.are.equal("other", layout.header(views, "other")[1].text)
+  end)
+end)
