@@ -16,8 +16,8 @@ obj.__index = obj
 
 --- QuickNote.file
 --- Variable
---- The inbox file notes are added to.
-obj.file = os.getenv("HOME") .. "/markdown/running_notes/inbx.md"
+--- The file notes are added to; a leading ~ means your home folder.
+obj.file = "~/markdown/running_notes/inbx.md"
 
 --- QuickNote.section
 --- Variable
@@ -66,13 +66,17 @@ local function runJS(js)
     if ready then panel:evaluateJavaScript(js) else pending = js end
 end
 
+local home = os.getenv("HOME")
+
 -- Adds text to the inbox; returns true if it was saved
 local function save(text)
     local line = insert.line(text, os.date(obj.timeFormat))
     if not line then return false end
-    local f, err = io.open(obj.file, "r")
+    local file = insert.expandHome(obj.file, home)
+    local shown = insert.shortenHome(file, home)
+    local f, err = io.open(file, "r")
     if not f then
-        hs.alert.show("QuickNote: can't read " .. obj.file .. ": " .. tostring(err))
+        hs.alert.show("QuickNote: can't read " .. shown .. ": " .. tostring(err))
         return false
     end
     local content = f:read("a")
@@ -80,24 +84,24 @@ local function save(text)
     local updated, found = insert.into(content, obj.section, line)
     -- write a temporary file and rename it over the inbox, so a failed write
     -- can't leave the inbox half-written
-    local tmp = obj.file .. ".quicknote-tmp"
+    local tmp = file .. ".quicknote-tmp"
     f, err = io.open(tmp, "w")
     if not f then
-        hs.alert.show("QuickNote: can't write " .. tmp .. ": " .. tostring(err))
+        hs.alert.show("QuickNote: can't write " .. insert.shortenHome(tmp, home) .. ": " .. tostring(err))
         return false
     end
     f:write(updated)
     f:close()
-    local ok, renameErr = os.rename(tmp, obj.file)
+    local ok, renameErr = os.rename(tmp, file)
     if not ok then
         os.remove(tmp)
-        hs.alert.show("QuickNote: can't save to " .. obj.file .. ": " .. tostring(renameErr))
+        hs.alert.show("QuickNote: can't save to " .. shown .. ": " .. tostring(renameErr))
         return false
     end
     if found then
-        hs.alert.show("Added to inbox", 1)
+        hs.alert.show("Added to " .. shown, 1.5)
     else
-        hs.alert.show("No " .. obj.section .. " section; added to the end of the inbox", 3)
+        hs.alert.show("No " .. obj.section .. " section; added to the end of " .. shown, 3)
     end
     return true
 end

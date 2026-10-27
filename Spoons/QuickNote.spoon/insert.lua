@@ -49,4 +49,18 @@ function insert.into(content, section, line)
     return table.concat(lines, "\n") .. "\n", true
 end
 
+--- insert.expandHome(path, home) -> string
+--- path with a leading ~ replaced by home ("~/notes.md" -> "/Users/me/notes.md").
+function insert.expandHome(path, home)
+    if path == "~" or path:sub(1, 2) == "~/" then return home .. path:sub(2) end
+    return path
+end
+
+--- insert.shortenHome(path, home) -> string
+--- path with a leading home replaced by ~, for messages.
+function insert.shortenHome(path, home)
+    if path == home or path:sub(1, #home + 1) == home .. "/" then return "~" .. path:sub(#home + 1) end
+    return path
+end
+
 return insert
