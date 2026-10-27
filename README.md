@@ -33,8 +33,10 @@ Yubico Authenticator are installed. Edit `modules/app_launcher.lua` and
 
 ## Finding your hotkeys
 
-- **⌘⌥H**: cheatsheet of every active Hammerspoon hotkey with a description.
-  It's built from the live hotkey list, so it's always current.
+- **⌘⌥H**: searchable list of every active Hammerspoon hotkey with a
+  description. Type to fuzzy-search descriptions and shortcuts (e.g. `rcal`
+  finds "Remind calendar", `⌘⌃⌥` lists the Hyper bindings); Esc closes. It's
+  built from the live hotkey list, so it's always current.
 - **Hyper+/**: KSheet, which shows the menu shortcuts of the frontmost app.
 
 ## Layout
@@ -42,7 +44,8 @@ Yubico Authenticator are installed. Edit `modules/app_launcher.lua` and
 ```
 init.lua                      entry point: loads modules and spoons
 modules/
-  hotkeyCheatsheet.lua        ⌘⌥H cheatsheet + bindHotkey/describe helpers
+  hotkeyCheatsheet.lua        ⌘⌥H searchable cheatsheet + bindHotkey/describe helpers
+  fuzzy.lua                   fuzzy matching for the cheatsheet search
   app_launcher.lua            launch-or-focus app hotkeys
   window_management.lua       move window to display N
   network.lua                 ping check
@@ -168,8 +171,9 @@ TimeMachineProgress.
 ## Tests
 
 Logic that doesn't need `hs.*` lives in plain Lua files inside the spoon
-(`Spoons/Cherry.spoon/days.lua`, `Spoons/RemindCalendar.spoon/layout.lua`) and
-is tested with
+or module (`Spoons/Cherry.spoon/days.lua`,
+`Spoons/RemindCalendar.spoon/layout.lua`, `modules/fuzzy.lua`) and is tested
+with
 [busted](https://lunarmodules.github.io/busted/); specs are in `spec/`.
 Hammerspoon runs Lua 5.4, so install busted for 5.4 rather than Homebrew's
 default `lua`:

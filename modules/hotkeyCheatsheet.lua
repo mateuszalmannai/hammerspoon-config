@@ -1,52 +1,10 @@
 ---@diagnostic disable: undefined-global
 local hotkeyCheatsheet = {}
 
-local css = [[
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-                 Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-    background: rgba(0,0,0,0.85);
-    color: white;
-    padding: 20px;
-  }
-  h1 {
-    font-size: 24pt;
-    margin-bottom: 10px;
-    text-align: center;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  th, td {
-    padding: 8px 12px;
-    border-bottom: 1px solid #444;
-    text-align: left;
-    vertical-align: top;
-  }
-  th {
-    background-color: #222;
-  }
-  code {
-    font-size: 14pt;
-  }
-]]
-
-local view = nil
+local fuzzy = require('modules.fuzzy')
 
 -- Table to store all bound hotkeys info:
 local hotkeysInfo = {}
-
--- Helper to escape HTML
-local function escapeHTML(s)
-  s = s or ""
-  s = s:gsub("&", "&amp;")
-  s = s:gsub("<", "&lt;")
-  s = s:gsub(">", "&gt;")
-  s = s:gsub('"', "&quot;")
-  s = s:gsub("'", "&#39;")
-  return s
-end
 
 -- Create a string representing modifiers using symbols, in the same order
 -- hs.hotkey uses for its idx field (⌘⌃⌥⇧), so combos match getHotkeys().
@@ -97,68 +55,48 @@ function hotkeyCheatsheet.entries()
   return list
 end
 
--- Generate HTML from every currently enabled hotkey
-local function generateHTML()
-  local rows = {}
+-- Chooser listing every enabled hotkey, filtered by fuzzy search on the
+-- description and the shortcut (so "⌘⌃⌥" lists the Hyper bindings)
+local chooser = nil
+local choices = {}
+
+local function refreshChoices()
+  choices = {}
   for _, e in ipairs(hotkeyCheatsheet.entries()) do
-    rows[#rows + 1] = string.format(
-      '<tr><td><code>%s</code></td><td>%s</td></tr>',
-      escapeHTML(e[1]),
-      escapeHTML(e[2])
-    )
+    choices[#choices + 1] = { text = e[2], subText = e[1] }
   end
+  table.sort(choices, function(a, b) return a.subText < b.subText end)
+end
 
-  table.sort(rows)
-
-  local html = [[
-<!DOCTYPE html>
-<html lang="en">
-<head><style>]] .. css .. [[</style></head>
-<body>
-<h1>Current Hammerspoon Hotkeys</h1>
-<table>
-<tr><th>Shortcut</th><th>Description</th></tr>
-]] .. table.concat(rows, "\n") .. [[
-</table>
-</body>
-</html>
-]]
-  return html
+local function getChooser()
+  if not chooser then
+    chooser = hs.chooser.new(function() end)
+    chooser:placeholderText("Search hotkeys")
+    chooser:queryChangedCallback(function(query)
+      chooser:choices(fuzzy.filter(query, choices, function(c) return { c.text, c.subText } end))
+    end)
+  end
+  return chooser
 end
 
 function hotkeyCheatsheet.show()
-  if view then
-    view:delete()
-    view = nil
-  end
-
   if #hs.hotkey.getHotkeys() == 0 then
     hs.alert.show("No hotkeys bound!")
     return
   end
-
-  local screen = hs.screen.mainScreen()
-  local frame = screen:frame()
-  local rect = hs.geometry.rect(frame.x + frame.w * 0.1, frame.y + frame.h * 0.1, frame.w * 0.8, frame.h * 0.6)
-
-  local html = generateHTML()
-
-  view = hs.webview.new(rect, {developerExtrasEnabled=false})
-        :windowStyle(hs.webview.windowMasks.utility | hs.webview.windowMasks.titled)
-        :level(hs.drawing.windowLevels.floating)
-        :html(html)
-        :show()
+  refreshChoices()
+  local c = getChooser()
+  c:query("")
+  c:choices(choices)
+  c:show()
 end
 
 function hotkeyCheatsheet.hide()
-  if view then
-    view:delete()
-    view = nil
-  end
+  if chooser then chooser:hide() end
 end
 
 function hotkeyCheatsheet.toggle()
-  if view then
+  if chooser and chooser:isVisible() then
     hotkeyCheatsheet.hide()
   else
     hotkeyCheatsheet.show()
@@ -166,4 +104,3 @@ function hotkeyCheatsheet.toggle()
 end
 
 return hotkeyCheatsheet
-
