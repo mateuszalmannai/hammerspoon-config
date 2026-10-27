@@ -81,18 +81,83 @@ function hotkeyCheatsheet.entries()
   return list
 end
 
--- Chooser listing every enabled hotkey, filtered by fuzzy search on the
+-- Panel listing every enabled hotkey, filtered by fuzzy search on the
 -- description and the shortcut (so "⌘⌃⌥" lists the Hyper bindings).
--- Enter runs the selected hotkey; Esc closes.
-local chooser = nil
+-- Enter (or a click) runs the selected hotkey; Esc or clicking elsewhere closes.
+-- Drawn with hs.webview rather than hs.chooser, so it can be dark, slightly
+-- transparent and rounded.
+local PANEL_W, PANEL_H = 640, 460
+
+local html = [==[
+<!doctype html>
+<html><head><meta charset="utf-8"><style>
+  html, body { margin: 0; height: 100%; background: transparent; overflow: hidden;
+    font: 14px -apple-system, BlinkMacSystemFont, sans-serif; color: #eee;
+    -webkit-user-select: none; cursor: default; }
+  #panel { box-sizing: border-box; height: 100%; display: flex; flex-direction: column;
+    background: rgba(24, 24, 27, 0.86); border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px; overflow: hidden; }
+  #q { flex: none; margin: 12px; padding: 10px 12px; font: inherit; font-size: 17px;
+    color: #fff; background: rgba(255, 255, 255, 0.07); border: none; border-radius: 8px;
+    outline: none; }
+  #q::placeholder { color: rgba(255, 255, 255, 0.35); }
+  #list { flex: 1; overflow-y: auto; padding: 0 8px 8px; }
+  #list::-webkit-scrollbar { display: none; }
+  .row { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 7px; }
+  .row.sel { background: rgba(10, 132, 255, 0.55); }
+  .desc { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .combo { flex: none; font-size: 13px; padding: 2px 7px; border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8); }
+  .empty { padding: 14px 10px; color: rgba(255, 255, 255, 0.4); }
+</style></head><body>
+<div id="panel"><input id="q" placeholder="Search hotkeys" autocomplete="off" spellcheck="false"><div id="list"></div></div>
+<script>
+  const q = document.getElementById('q'), list = document.getElementById('list');
+  let items = [], sel = 0;
+  const post = m => webkit.messageHandlers.cheatsheet.postMessage(m);
+  function draw() {
+    list.innerHTML = '';
+    if (!items.length) {
+      const e = document.createElement('div'); e.className = 'empty';
+      e.textContent = 'No matching hotkeys'; list.appendChild(e); return;
+    }
+    items.forEach((it, i) => {
+      const r = document.createElement('div'); r.className = 'row' + (i === sel ? ' sel' : '');
+      const d = document.createElement('span'); d.className = 'desc'; d.textContent = it.text;
+      const c = document.createElement('span'); c.className = 'combo'; c.textContent = it.combo;
+      r.append(d, c);
+      r.onmousemove = () => { if (sel !== i) { sel = i; draw(); } };
+      r.onclick = () => post({ type: 'run', combo: it.combo });
+      list.appendChild(r);
+    });
+    list.children[sel].scrollIntoView({ block: 'nearest' });
+  }
+  function render(data) { items = Array.isArray(data.items) ? data.items : []; sel = 0; draw(); }
+  function open(data) { q.value = ''; render(data); q.focus(); }
+  function move(d) { if (items.length) { sel = (sel + d + items.length) % items.length; draw(); } }
+  q.addEventListener('input', () => post({ type: 'query', query: q.value }));
+  q.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown' || (e.ctrlKey && e.key === 'n')) { move(1); e.preventDefault(); }
+    else if (e.key === 'ArrowUp' || (e.ctrlKey && e.key === 'p')) { move(-1); e.preventDefault(); }
+    else if (e.key === 'Enter') { if (items[sel]) post({ type: 'run', combo: items[sel].combo }); e.preventDefault(); }
+    else if (e.key === 'Escape') { post({ type: 'close' }); e.preventDefault(); }
+  });
+  window.addEventListener('blur', () => post({ type: 'close' }));
+  document.addEventListener('mousedown', e => { if (e.target !== q) e.preventDefault(); });
+</script></body></html>
+]==]
+
+local panel = nil
+local ready = false      -- page finished loading
+local pending = nil      -- JS to run once it has
+local previousWindow = nil
 local choices = {}
 
--- A list left open across a config reload is orphaned on screen, out of reach
--- of the reloaded config. Close it first: delete() alone doesn't take the window
--- down before the old Lua state is gone, hide() does.
+-- A panel left open across a config reload is orphaned on screen, out of reach
+-- of the reloaded config. Close it first.
 local previousShutdown = hs.shutdownCallback
 hs.shutdownCallback = function()
-  if chooser then chooser:hide() chooser:delete() end
+  if panel then panel:hide() panel:delete() end
   if previousShutdown then previousShutdown() end
 end
 
@@ -100,27 +165,57 @@ local function refreshChoices()
   choices = {}
   for _, e in ipairs(hotkeyCheatsheet.entries()) do
     if e[1] ~= ownCombo then
-      choices[#choices + 1] = { text = e[2], subText = e[1] }
+      choices[#choices + 1] = { text = e[2], combo = e[1] }
     end
   end
-  table.sort(choices, function(a, b) return a.subText < b.subText end)
+  table.sort(choices, function(a, b) return a.combo < b.combo end)
 end
 
-local function getChooser()
-  if not chooser then
-    chooser = hs.chooser.new(function(choice)
-      if not choice then return end   -- Esc
-      local mods, key = hotkeyCheatsheet.parseCombo(choice.subText)
-      -- give focus a moment to return to the previous app, so window hotkeys
-      -- act on its window
-      hs.timer.doAfter(0.2, function() hs.eventtap.keyStroke(mods, key) end)
-    end)
-    chooser:placeholderText("Search hotkeys")
-    chooser:queryChangedCallback(function(query)
-      chooser:choices(fuzzy.filter(query, choices, function(c) return { c.text, c.subText } end))
-    end)
+local function runJS(fnName, list)
+  local js = fnName .. "(" .. hs.json.encode({ items = list }) .. ")"
+  if ready then panel:evaluateJavaScript(js) else pending = js end
+end
+
+local function onMessage(msg)
+  local body = msg.body or {}
+  if body.type == "query" then
+    runJS("render", fuzzy.filter(body.query, choices, function(c) return { c.text, c.combo } end))
+  elseif body.type == "run" then
+    hotkeyCheatsheet.hide()
+    local mods, key = hotkeyCheatsheet.parseCombo(body.combo)
+    -- give focus a moment to return to the previous app, so window hotkeys
+    -- act on its window
+    hs.timer.doAfter(0.2, function() hs.eventtap.keyStroke(mods, key) end)
+  elseif body.type == "close" then
+    hotkeyCheatsheet.hide()
   end
-  return chooser
+end
+
+local function getPanel()
+  if not panel then
+    local uc = hs.webview.usercontent.new("cheatsheet"):setCallback(onMessage)
+    panel = hs.webview.new({ x = 0, y = 0, w = PANEL_W, h = PANEL_H }, {}, uc)
+      :windowStyle({ "borderless" })
+      :allowTextEntry(true)
+      :transparent(true)
+      :shadow(true)
+      :closeOnEscape(false)
+      :deleteOnClose(false)
+      :level(hs.drawing.windowLevels.modalPanel)
+      :behaviorAsLabels({ "moveToActiveSpace", "transient" })
+      :navigationCallback(function(action)
+        if action == "didFinishNavigation" then
+          ready = true
+          if pending then panel:evaluateJavaScript(pending) pending = nil end
+        end
+      end)
+      :html(html)
+  end
+  return panel
+end
+
+function hotkeyCheatsheet.isVisible()
+  return panel ~= nil and panel:isVisible()
 end
 
 function hotkeyCheatsheet.show()
@@ -129,18 +224,25 @@ function hotkeyCheatsheet.show()
     return
   end
   refreshChoices()
-  local c = getChooser()
-  c:query("")
-  c:choices(choices)
-  c:show()
+  previousWindow = hs.window.focusedWindow()
+  local p = getPanel()
+  local screen = hs.screen.mainScreen():frame()
+  p:topLeft({ x = screen.x + (screen.w - PANEL_W) / 2, y = screen.y + screen.h * 0.18 })
+  p:show()
+  hs.focus()
+  p:hswindow():focus()
+  runJS("open", choices)
 end
 
 function hotkeyCheatsheet.hide()
-  if chooser then chooser:hide() end
+  if not hotkeyCheatsheet.isVisible() then return end
+  panel:hide()
+  if previousWindow then previousWindow:focus() end
+  previousWindow = nil
 end
 
 function hotkeyCheatsheet.toggle()
-  if chooser and chooser:isVisible() then
+  if hotkeyCheatsheet.isVisible() then
     hotkeyCheatsheet.hide()
   else
     hotkeyCheatsheet.show()
