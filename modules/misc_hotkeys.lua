@@ -37,9 +37,7 @@ function M.bindMiscHotkeys()
   hotkeyCheatsheet.bindHotkey(hyper, "y", hs.toggleConsole, "Toggle Hammerspoon Console")
   hotkeyCheatsheet.bindHotkey(hyper, "r", hs.reload, "Reload Hammerspoon Config")
 
-  hotkeyCheatsheet.bindHotkey(cmd_opt, 'h', function()
-    hotkeyCheatsheet.toggle()
-  end, "Toggle Hammerspoon cheatsheet")
+  hotkeyCheatsheet.bindToggle(cmd_opt, 'h', "Toggle Hammerspoon cheatsheet")
 
   hotkeyCheatsheet.bindHotkey(cmd_opt, "K", M.actions.killDock, "Kill Dock")
   hotkeyCheatsheet.bindHotkey({"alt", "shift"}, "t", M.actions.showTime, "Show current time")

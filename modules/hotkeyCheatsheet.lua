@@ -29,6 +29,24 @@ local function comboString(mods, key)
   return modifiersToString(mods) .. tostring(key):upper()
 end
 
+local symbolMods = {
+  ["✧"] = { "cmd", "ctrl", "alt", "shift" },
+  ["⌘"] = { "cmd" }, ["⌃"] = { "ctrl" }, ["⌥"] = { "alt" }, ["⇧"] = { "shift" },
+}
+
+-- Turns a combo string as shown by hs.hotkey ("⌘⌃⌥UP", "✧P", "⌃/") back into
+-- modifiers and a key name for hs.eventtap.keyStroke ({"cmd","ctrl","alt"}, "up")
+function hotkeyCheatsheet.parseCombo(combo)
+  local mods, rest = {}, 1
+  for pos, code in utf8.codes(combo) do
+    local m = symbolMods[utf8.char(code)]
+    if not m then rest = pos break end
+    for _, name in ipairs(m) do mods[#mods + 1] = name end
+    rest = pos + #utf8.char(code)
+  end
+  return mods, combo:sub(rest):lower()
+end
+
 -- Attach a description to a hotkey bound elsewhere (e.g. by a Spoon)
 function hotkeyCheatsheet.describe(mods, key, description)
   hotkeysInfo[comboString(mods, key)] = description
@@ -46,6 +64,14 @@ function hotkeyCheatsheet.bindHotkey(mods, key, fn, description)
   end
 end
 
+-- Binds the hotkey that opens the cheatsheet itself; it's left out of the list,
+-- since running it from there would only reopen the list
+local ownCombo = nil
+function hotkeyCheatsheet.bindToggle(mods, key, description)
+  ownCombo = comboString(mods, key)
+  return hotkeyCheatsheet.bindHotkey(mods, key, hotkeyCheatsheet.toggle, description)
+end
+
 -- Every currently enabled hotkey as {combo, description} pairs
 function hotkeyCheatsheet.entries()
   local list = {}
@@ -56,21 +82,39 @@ function hotkeyCheatsheet.entries()
 end
 
 -- Chooser listing every enabled hotkey, filtered by fuzzy search on the
--- description and the shortcut (so "⌘⌃⌥" lists the Hyper bindings)
+-- description and the shortcut (so "⌘⌃⌥" lists the Hyper bindings).
+-- Enter runs the selected hotkey; Esc closes.
 local chooser = nil
 local choices = {}
+
+-- A list left open across a config reload is orphaned on screen, out of reach
+-- of the reloaded config. Close it first: delete() alone doesn't take the window
+-- down before the old Lua state is gone, hide() does.
+local previousShutdown = hs.shutdownCallback
+hs.shutdownCallback = function()
+  if chooser then chooser:hide() chooser:delete() end
+  if previousShutdown then previousShutdown() end
+end
 
 local function refreshChoices()
   choices = {}
   for _, e in ipairs(hotkeyCheatsheet.entries()) do
-    choices[#choices + 1] = { text = e[2], subText = e[1] }
+    if e[1] ~= ownCombo then
+      choices[#choices + 1] = { text = e[2], subText = e[1] }
+    end
   end
   table.sort(choices, function(a, b) return a.subText < b.subText end)
 end
 
 local function getChooser()
   if not chooser then
-    chooser = hs.chooser.new(function() end)
+    chooser = hs.chooser.new(function(choice)
+      if not choice then return end   -- Esc
+      local mods, key = hotkeyCheatsheet.parseCombo(choice.subText)
+      -- give focus a moment to return to the previous app, so window hotkeys
+      -- act on its window
+      hs.timer.doAfter(0.2, function() hs.eventtap.keyStroke(mods, key) end)
+    end)
     chooser:placeholderText("Search hotkeys")
     chooser:queryChangedCallback(function(query)
       chooser:choices(fuzzy.filter(query, choices, function(c) return { c.text, c.subText } end))

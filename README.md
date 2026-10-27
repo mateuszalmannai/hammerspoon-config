@@ -35,8 +35,9 @@ Yubico Authenticator are installed. Edit `modules/app_launcher.lua` and
 
 - **⌘⌥H**: searchable list of every active Hammerspoon hotkey with a
   description. Type to fuzzy-search descriptions and shortcuts (e.g. `rcal`
-  finds "Remind calendar", `⌘⌃⌥` lists the Hyper bindings); Esc closes. It's
-  built from the live hotkey list, so it's always current.
+  finds "Remind calendar", `⌘⌃⌥` lists the Hyper bindings). Enter runs the
+  selected hotkey; Esc closes. It's built from the live hotkey list, so it's
+  always current.
 - **Hyper+/**: KSheet, which shows the menu shortcuts of the frontmost app.
 
 ## Layout
