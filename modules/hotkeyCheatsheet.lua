@@ -150,7 +150,6 @@ local html = [==[
 local panel = nil
 local ready = false      -- page finished loading
 local pending = nil      -- JS to run once it has
-local previousWindow = nil
 local choices = {}
 
 -- A panel left open across a config reload is orphaned on screen, out of reach
@@ -195,7 +194,9 @@ local function getPanel()
   if not panel then
     local uc = hs.webview.usercontent.new("cheatsheet"):setCallback(onMessage)
     panel = hs.webview.new({ x = 0, y = 0, w = PANEL_W, h = PANEL_H }, {}, uc)
-      :windowStyle({ "borderless" })
+      -- nonactivating: takes keyboard input without bringing Hammerspoon (and
+      -- its console) to the front, so the previous app keeps focus throughout
+      :windowStyle({ "borderless", "nonactivating" })
       :allowTextEntry(true)
       :transparent(true)
       :shadow(true)
@@ -224,21 +225,16 @@ function hotkeyCheatsheet.show()
     return
   end
   refreshChoices()
-  previousWindow = hs.window.focusedWindow()
   local p = getPanel()
   local screen = hs.screen.mainScreen():frame()
   p:topLeft({ x = screen.x + (screen.w - PANEL_W) / 2, y = screen.y + screen.h * 0.18 })
   p:show()
-  hs.focus()
-  p:hswindow():focus()
   runJS("open", choices)
 end
 
 function hotkeyCheatsheet.hide()
   if not hotkeyCheatsheet.isVisible() then return end
   panel:hide()
-  if previousWindow then previousWindow:focus() end
-  previousWindow = nil
 end
 
 function hotkeyCheatsheet.toggle()
