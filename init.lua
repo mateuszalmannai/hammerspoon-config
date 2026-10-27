@@ -128,12 +128,11 @@ Install:andUse("TimeFlow")
 Install:andUse("HCalendar")
 Install:andUse("BingDaily")
 
--- RemindCalendar: next two weeks from remind (same files as wyrd/rcal) on the desktop
+-- RemindCalendar: next two weeks from remind (same files as wyrd/rcal) in a popup
 hs.loadSpoon("RemindCalendar")
-spoon.RemindCalendar:start()
 hotkeyCheatsheet.bindHotkey(hyper, "w", function()
   spoon.RemindCalendar:toggle()
-end, "Toggle remind calendar on desktop")
+end, "Remind calendar popup: show or hide (Esc or click also closes it)")
 
 -- Bring the console to the current desktop when opened (e.g. for Cherry stats),
 -- rather than switching to whichever desktop it was last on
@@ -182,11 +181,6 @@ local function layoutDesktopWidgets()
   -- bottom-left: calendar strip
   local hc = spoon.HCalendar.canvas
   hc:topLeft({ x = f.x + margin, y = f.y + f.h - hc:size().h - margin })
-
-  -- centre: remind calendar (centres itself when redrawn, as its size comes
-  -- from remind's output)
-  local rc = spoon.RemindCalendar
-  if rc.canvas:isShowing() then rc:refresh() end
 end
 layoutDesktopWidgets()
 widgetScreenWatcher = hs.screen.watcher.new(layoutDesktopWidgets):start()
