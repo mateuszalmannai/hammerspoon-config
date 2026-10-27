@@ -32,7 +32,7 @@ obj.reminders = os.getenv("HOME") .. "/markdown/synched_reminders"
 obj.views = {
     week     = { key = "1", args = { "-c+1", "-m", "-w100" } },
     twoWeeks = { key = "2", args = { "-c+2", "-m", "-w100" } },
-    month    = { key = "m", args = { "-c",   "-m", "-w100" } },
+    month    = { key = "m", args = { "-c",   "-m", "-w160" } },
 }
 
 --- RemindCalendar.defaultView
