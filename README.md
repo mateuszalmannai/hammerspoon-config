@@ -132,6 +132,7 @@ Escape cancels.
 | Hyper+W | Remind calendar popup (RemindCalendar). While open: `1` one week, `2` two weeks, `m` month; Esc or click closes |
 | Hyper+T | Taskwarrior popup (TaskwarriorViews) for the active context, in taskwarrior's colours. While open: `n` next, `b` weekly burndown, `h` monthly history, `s` project summary; Esc or click closes. Read-only, never syncs |
 | Hyper+N | Quick note (QuickNote): one-line box; Enter adds `- <timestamp> text` to the Uncategorised section of `~/markdown/running_notes/inbx.md` (set `file` and `section` in `init.lua`), Esc cancels. Clicking away keeps the text for next time |
+| Hyper+⇧N | Open the QuickNote file (`inbx.md`) in Marked, via its `mk` command-line tool |
 | Hyper+G | Search box (HSearch): type `d` / `n` / `s` / `t` + Tab for dates, notes, thesaurus, Brave tabs |
 | Hyper+P | Pomodoro timer (Cherry): start, or pause/resume. Shown in the menu bar while running |
 | Hyper+⇧P | Pomodoro stats overlay (Cherry). Esc or click closes |

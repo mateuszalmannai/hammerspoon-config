@@ -148,6 +148,10 @@ spoon.QuickNote.section = "Uncategorised"
 hotkeyCheatsheet.bindHotkey(hyper, "n", function()
   spoon.QuickNote:toggle()
 end, "Quick note to " .. spoon.QuickNote.file:match("[^/]+$") .. " (" .. spoon.QuickNote.section .. "): Enter saves, Esc cancels")
+-- open the same file in Marked (via its `mk` command-line tool)
+hotkeyCheatsheet.bindHotkey({ "ctrl", "alt", "cmd", "shift" }, "n", function()
+  hs.task.new("/opt/homebrew/bin/mk", nil, { hs.fs.pathToAbsolute(spoon.QuickNote.file) }):start()
+end, "Open " .. spoon.QuickNote.file:match("[^/]+$") .. " in Marked (mk)")
 
 -- Bring the console to the current desktop when opened (e.g. for Cherry stats),
 -- rather than switching to whichever desktop it was last on
