@@ -24,6 +24,12 @@ widgets.
    ```lua
    hs.ipc.cliInstall("/opt/homebrew")
    ```
+5. Optional, on a Mac with a notch: reduce the gap between menu bar icons, so the Hammerspoon items (Wi-Fi name, SpeedMenu, MicMute) aren't hidden behind the notch. Log out and back in for it to take effect:
+   ```sh
+   defaults -currentHost write -globalDomain NSStatusItemSpacing -int 6
+   defaults -currentHost write -globalDomain NSStatusItemSelectionPadding -int 6
+   ```
+   To go back to the macOS default spacing, run the same commands with `delete` instead of `write` (and without `-int 6`).
 
 On load you get a "Hammerspoon config loaded" alert and a sound.
 
