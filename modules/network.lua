@@ -36,4 +36,43 @@ function M.bindPingHotkey()
   end, "Check network speed")
 end
 
+-- Wi-Fi name in the menu bar (based on
+-- https://dev.to/mcrowder65/configuring-your-mac-to-display-the-wifi-name-on-the-menu-bar-3p8b).
+-- macOS only gives apps the SSID with Location Services permission; until
+-- Hammerspoon has it, the title asks for it instead of claiming Wi-Fi is off.
+local function wifiTitle()
+  local details = hs.wifi.interfaceDetails() or {}
+  if not details.power then return "Wi-Fi off" end
+  local ssid = hs.wifi.currentNetwork()
+  if ssid then return ssid end
+  if hs.location.authorizationStatus() ~= "authorized" then return "Wi-Fi: allow Location" end
+  return "Wi-Fi: not connected"
+end
+
+function M.startWifiMenu()
+  M.wifiMenu = hs.menubar.new()
+  local function update() M.wifiMenu:setTitle(wifiTitle()) end
+  M.wifiMenu:setClickCallback(function()
+    hs.execute("open 'x-apple.systempreferences:com.apple.wifi-settings-extension'")
+  end)
+  M.wifiMenu:setTooltip("Click for Wi-Fi settings")
+
+  M.wifiWatcher = hs.wifi.watcher.new(update)
+    :watchingFor({ "SSIDChange", "powerChange", "linkChange" })
+    :start()
+  update()
+
+  -- First run: hs.location.start() makes macOS ask for permission; poll until
+  -- it's answered, then stop location updates (only the permission is needed)
+  if hs.location.authorizationStatus() ~= "authorized" then
+    hs.location.start()
+    M.locationDone = hs.timer.waitUntil(function()
+      return hs.location.authorizationStatus() ~= "undefined"
+    end, function()
+      hs.location.stop()
+      update()
+    end, 2)
+  end
+end
+
 return M

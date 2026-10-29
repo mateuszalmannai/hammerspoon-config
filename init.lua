@@ -17,6 +17,7 @@ local hyper = { "ctrl", "alt", "cmd" }
 appLauncher.bindAppHotkeys()
 windowMgmt.bindWindowHotkeys()
 network.bindPingHotkey()
+network.startWifiMenu()
 miscHotkeys.bindMiscHotkeys()
 leader.bindLeader()
 
