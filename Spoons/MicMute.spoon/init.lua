@@ -18,10 +18,13 @@ function obj:updateMicMute(muted)
 	if muted == -1 then
 		muted = hs.audiodevice.defaultInputDevice():muted()
 	end
+	-- icon only, to save menu bar space; the tooltip says it in words
 	if muted then
-		obj.mute_menu:setTitle("📵 Muted")
+		obj.mute_menu:setTitle("📵")
+		obj.mute_menu:setTooltip("Mic muted (click to unmute)")
 	else
-		obj.mute_menu:setTitle("🎙 On")
+		obj.mute_menu:setTitle("🎙")
+		obj.mute_menu:setTooltip("Mic on (click to mute)")
 	end
 end
 
