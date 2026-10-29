@@ -40,7 +40,7 @@ end
 -- https://dev.to/mcrowder65/configuring-your-mac-to-display-the-wifi-name-on-the-menu-bar-3p8b).
 -- macOS only gives apps the SSID with Location Services permission; until
 -- Hammerspoon has it, the title asks for it instead of claiming Wi-Fi is off.
-local function wifiTitle()
+function M.wifiTitle()
   local details = hs.wifi.interfaceDetails() or {}
   if not details.power then return "Wi-Fi off" end
   local ssid = hs.wifi.currentNetwork()
@@ -64,7 +64,7 @@ end
 
 function M.startWifiMenu()
   M.wifiMenu = hs.menubar.new()
-  local function update() M.wifiMenu:setTitle(styledWifiTitle(wifiTitle())) end
+  local function update() M.wifiMenu:setTitle(styledWifiTitle(M.wifiTitle())) end
   M.wifiMenu:setClickCallback(function()
     hs.execute("open 'x-apple.systempreferences:com.apple.wifi-settings-extension'")
   end)
