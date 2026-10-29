@@ -63,3 +63,35 @@ describe("hotkeyCheatsheet.describeKeymap", function()
     }, rows)
   end)
 end)
+
+describe("hotkeyCheatsheet.describeSequence", function()
+  it("turns keys pressed after a hotkey into rows", function()
+    local dates = function() end
+    assert.are.same({
+      { text = "HSearch › Dates", combo = "⌘⌃⌥G D", fn = dates },
+    }, hotkeyCheatsheet.describeSequence({ "ctrl", "alt", "cmd" }, "g", {
+      { key = "d", text = "HSearch › Dates", fn = dates },
+    }))
+  end)
+end)
+
+describe("hotkeyCheatsheet.describeViews", function()
+  local shown
+  local popup = {
+    views = { { name = "week", key = "1", label = "week" }, { name = "burndown", key = "b" } },
+    show = function(_, name) shown = name end,
+  }
+  local rows = hotkeyCheatsheet.describeViews({ "ctrl", "alt", "cmd" }, "w", "Remind calendar", popup)
+
+  it("makes a row per view, using the label (or the name) capitalised", function()
+    assert.are.equal("Remind calendar › Week", rows[1].text)
+    assert.are.equal("⌘⌃⌥W 1", rows[1].combo)
+    assert.are.equal("Remind calendar › Burndown", rows[2].text)
+    assert.are.equal("⌘⌃⌥W B", rows[2].combo)
+  end)
+
+  it("opens the popup on that view when run", function()
+    rows[2].fn()
+    assert.are.equal("burndown", shown)
+  end)
+end)

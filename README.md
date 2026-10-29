@@ -39,6 +39,7 @@ Yubico Authenticator are installed. Edit `modules/app_launcher.lua` and
   selected hotkey; Esc closes. It's built from the live hotkey list, so it's
   always current.
 - The ⌘⌥H list also has a row for every leader-menu action, e.g. "System › Lock screen" with `⌘⌃⌥SPACE S L`, so searching "lock" finds it even if you've forgotten the key sequence. Enter runs the action directly. The rows are built from the leader's own keymap in `modules/leader.lua`, so they stay in sync.
+- It also has a row for each key inside the Remind, Taskwarrior and HSearch popups, e.g. "Remind calendar › Two weeks" with `⌘⌃⌥W 2` (open the popup, then press 2). Enter opens the popup straight on that view or source. The Remind and Taskwarrior rows come from each spoon's `views` list, so they stay in sync; the HSearch sources are listed in `init.lua`.
 - **Hyper+/**: the same kind of searchable list, for the menu shortcuts of the frontmost app. Each row shows the menu path (e.g. "Edit › Find › Find Next") and its shortcut, so you can search by either; Enter picks that menu item.
 
 ## Layout

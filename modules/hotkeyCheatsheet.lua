@@ -73,7 +73,7 @@ function hotkeyCheatsheet.bindToggle(mods, key, description)
 end
 
 -- Rows for actions reached through a key sequence rather than a hotkey of
--- their own (the leader menu), as {text, combo, fn}
+-- their own (the leader menu, the keys inside popups), as {text, combo, fn}
 local sequenceEntries = {}
 
 local function capitalize(s)
@@ -108,6 +108,41 @@ function hotkeyCheatsheet.describeKeymap(mods, key, keymap)
   return list
 end
 
+--- hotkeyCheatsheet.describeSequence(mods, key, steps) -> list
+--- Rows for keys pressed after a hotkey, such as the keys inside a popup it
+--- opens. steps is a list of {key = "2", text = "...", fn = action}; each
+--- becomes {text, combo = "⌘⌃⌥W 2", fn} in the cheatsheet, and picking it runs
+--- fn. Plain Lua; see spec/hotkey_cheatsheet_spec.lua.
+function hotkeyCheatsheet.describeSequence(mods, key, steps)
+  local list = {}
+  for _, step in ipairs(steps) do
+    list[#list + 1] = {
+      text = step.text,
+      combo = comboString(mods, key) .. " " .. tostring(step.key):upper(),
+      fn = step.fn,
+    }
+  end
+  for _, e in ipairs(list) do sequenceEntries[#sequenceEntries + 1] = e end
+  return list
+end
+
+--- hotkeyCheatsheet.describeViews(mods, key, title, popup) -> list
+--- describeSequence for a popup with switchable views, like RemindCalendar and
+--- TaskwarriorViews: popup.views is a list of {name, key, label} and
+--- popup:show(name) opens the popup on that view. Each view becomes a row such
+--- as "Remind calendar › Two weeks" (⌘⌃⌥W 2) that opens the popup on it.
+function hotkeyCheatsheet.describeViews(mods, key, title, popup)
+  local steps = {}
+  for _, view in ipairs(popup.views) do
+    steps[#steps + 1] = {
+      key = view.key,
+      text = title .. " › " .. capitalize(view.label or view.name),
+      fn = function() popup:show(view.name) end,
+    }
+  end
+  return hotkeyCheatsheet.describeSequence(mods, key, steps)
+end
+
 -- Every currently enabled hotkey as {combo, description} pairs
 function hotkeyCheatsheet.entries()
   local list = {}
@@ -117,7 +152,7 @@ function hotkeyCheatsheet.entries()
   return list
 end
 
--- Panel listing every enabled hotkey and leader action, filtered by fuzzy search on the
+-- Panel listing every enabled hotkey, leader action and popup key, filtered by fuzzy search on the
 -- description and the shortcut (so "⌘⌃⌥" lists the Hyper bindings).
 -- Enter (or a click) runs the selected hotkey; see modules/searchPanel.lua.
 local panel = searchPanel.new({

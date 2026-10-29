@@ -129,12 +129,14 @@ hs.loadSpoon("RemindCalendar")
 hotkeyCheatsheet.bindHotkey(hyper, "w", function()
   spoon.RemindCalendar:toggle()
 end, "Remind calendar popup: show or hide (1/2/m: week, two weeks, month; Esc or click closes)")
+hotkeyCheatsheet.describeViews(hyper, "w", "Remind calendar", spoon.RemindCalendar)
 
 -- TaskwarriorViews: taskwarrior reports for the active context in a popup
 hs.loadSpoon("TaskwarriorViews")
 hotkeyCheatsheet.bindHotkey(hyper, "t", function()
   spoon.TaskwarriorViews:toggle()
 end, "Taskwarrior popup: show or hide (n/b/h/s: next, burndown, history, summary; Esc or click closes)")
+hotkeyCheatsheet.describeViews(hyper, "t", "Taskwarrior", spoon.TaskwarriorViews)
 
 -- QuickNote: one-line box that adds a timestamped note to a file, at the end
 -- of the section whose heading contains `section`
@@ -166,6 +168,17 @@ hs.loadSpoon("HSearch")
 hotkeyCheatsheet.bindHotkey(hyper, "g", function()
   spoon.HSearch:toggleShow()
 end, "HSearch (d/n/s/t + Tab: dates, notes, thesaurus, Brave tabs)")
+-- a cheatsheet row per source, which opens HSearch on it (as typing the
+-- keyword and Tab would)
+local hsearchSteps = {}
+for _, source in ipairs({ { "d", "Dates" }, { "n", "Notes" }, { "s", "Thesaurus" }, { "t", "Brave tabs" } }) do
+  hsearchSteps[#hsearchSteps + 1] = { key = source[1], text = "HSearch › " .. source[2], fn = function()
+    if not spoon.HSearch.chooser:isVisible() then spoon.HSearch:toggleShow() end
+    spoon.HSearch.chooser:query(source[1])
+    spoon.HSearch:switchSource()
+  end }
+end
+hotkeyCheatsheet.describeSequence(hyper, "g", hsearchSteps)
 
 -- Desktop widget layout: keep widgets inside the usable screen area (below the
 -- menu bar, clear of the Dock) with a consistent margin. Re-applied whenever
