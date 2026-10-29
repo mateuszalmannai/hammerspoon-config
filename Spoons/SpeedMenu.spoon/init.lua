@@ -74,8 +74,10 @@ function obj:rescan()
     if obj.interface then
         -- Inspect active interface and create menuitems
         local interface_detail = hs.network.interfaceDetails(obj.interface)
-        -- macOS hides the SSID (blank) unless Hammerspoon has Location access
-        local ssid = interface_detail.AirPort and interface_detail.AirPort.SSID
+        -- interfaceDetails' AirPort.SSID is always blank on current macOS, even
+        -- with Location access; hs.wifi gets it once that's granted (nil when
+        -- the interface isn't Wi-Fi)
+        local ssid = hs.wifi.currentNetwork(obj.interface)
         if ssid and ssid:match("%S") then
             table.insert(menuitems_table, {
                 title = "SSID: " .. ssid,
