@@ -51,13 +51,9 @@ hotkeyCheatsheet.describe(hyper, "down", "Snap window to bottom (repeat: 1/2, 1/
 hotkeyCheatsheet.describe(hyper, "left", "Snap window to left (repeat: 1/2, 1/3, 2/3)")
 hotkeyCheatsheet.describe(hyper, "f", "Full screen (repeat: full, 3/4, 1/2)")
 
--- keybindings
-Install:andUse("KSheet", {
-  hotkeys = {
-    toggle = { hyper, "/" }
-  }
-})
-hotkeyCheatsheet.describe(hyper, "/", "Toggle KSheet (menu shortcuts of frontmost app)")
+-- Menu shortcuts of the frontmost app, in the cheatsheet's searchable panel
+local appShortcuts = require('modules.appShortcuts')
+hotkeyCheatsheet.bindHotkey(hyper, "/", appShortcuts.toggle, "Search menu shortcuts of frontmost app")
 
 -- AClock: big clock in the middle of the screen for a few seconds
 hs.loadSpoon("AClock")

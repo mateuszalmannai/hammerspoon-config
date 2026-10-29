@@ -38,7 +38,7 @@ Yubico Authenticator are installed. Edit `modules/app_launcher.lua` and
   finds "Remind calendar", `⌘⌃⌥` lists the Hyper bindings). Enter runs the
   selected hotkey; Esc closes. It's built from the live hotkey list, so it's
   always current.
-- **Hyper+/**: KSheet, which shows the menu shortcuts of the frontmost app.
+- **Hyper+/**: the same kind of searchable list, for the menu shortcuts of the frontmost app. Each row shows the menu path (e.g. "Edit › Find › Find Next") and its shortcut, so you can search by either; Enter picks that menu item.
 
 ## Layout
 
@@ -46,6 +46,8 @@ Yubico Authenticator are installed. Edit `modules/app_launcher.lua` and
 init.lua                      entry point: loads modules and spoons
 modules/
   hotkeyCheatsheet.lua        ⌘⌥H searchable cheatsheet + bindHotkey/describe helpers
+  appShortcuts.lua            Hyper+/ searchable menu shortcuts of the frontmost app
+  searchPanel.lua             the dark searchable panel both of them use
   fuzzy.lua                   fuzzy matching for the cheatsheet search
   popupLayout.lua             font fitting for the Remind and Taskwarrior popups
   app_launcher.lua            launch-or-focus app hotkeys
@@ -143,7 +145,7 @@ Escape cancels.
 | Hotkey | Action |
 |---|---|
 | ⌘⌥H | Hotkey cheatsheet |
-| Hyper+/ | KSheet (app menu shortcuts) |
+| Hyper+/ | Menu shortcuts of the frontmost app |
 | Hyper+Y | Hammerspoon console |
 | Hyper+R | Reload config |
 
