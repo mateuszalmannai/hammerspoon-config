@@ -39,3 +39,27 @@ describe("hotkeyCheatsheet.parseCombo", function()
     assert.are.same({ mods = {}, key = "f13" }, parse("F13"))
   end)
 end)
+
+describe("hotkeyCheatsheet.describeKeymap", function()
+  -- keys shaped like RecursiveBinder.singleKey: {mods, key, name}
+  local function key(k, name, mods) return { mods or {}, k, name } end
+  local lock, sleep, brave, copyDate = function() end, function() end, function() end, function() end
+
+  local rows = hotkeyCheatsheet.describeKeymap({ "ctrl", "alt", "cmd" }, "space", {
+    [key("s", "system+")] = {
+      [key("l", "lock screen")] = lock,
+      [key("z", "sleep")] = sleep,
+    },
+    [key("a", "apps+")] = { [key("b", "Brave")] = brave },
+    [key("d", "copy date", { "shift" })] = copyDate,
+  })
+
+  it("lists every action with its path and key sequence, sorted by combo (byte order, so ⇧ comes last)", function()
+    assert.are.same({
+      { text = "Apps › Brave", combo = "⌘⌃⌥SPACE A B", fn = brave },
+      { text = "System › Lock screen", combo = "⌘⌃⌥SPACE S L", fn = lock },
+      { text = "System › Sleep", combo = "⌘⌃⌥SPACE S Z", fn = sleep },
+      { text = "Copy date", combo = "⌘⌃⌥SPACE ⇧D", fn = copyDate },
+    }, rows)
+  end)
+end)

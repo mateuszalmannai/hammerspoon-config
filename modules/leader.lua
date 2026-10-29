@@ -52,6 +52,8 @@ function M.bindLeader()
 
   hotkeyCheatsheet.bindHotkey(hyper, "space", rb.recursiveBind(keymap),
     "Leader menu (apps, window, clipboard, system, hammerspoon)")
+  -- each leader action also gets its own row in the cheatsheet
+  hotkeyCheatsheet.describeKeymap(hyper, "space", keymap)
 end
 
 return M

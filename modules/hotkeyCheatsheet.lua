@@ -72,6 +72,42 @@ function hotkeyCheatsheet.bindToggle(mods, key, description)
   return hotkeyCheatsheet.bindHotkey(mods, key, hotkeyCheatsheet.toggle, description)
 end
 
+-- Rows for actions reached through a key sequence rather than a hotkey of
+-- their own (the leader menu), as {text, combo, fn}
+local sequenceEntries = {}
+
+local function capitalize(s)
+  return (s:gsub("^%l", string.upper))
+end
+
+--- hotkeyCheatsheet.describeKeymap(mods, key, keymap) -> list
+--- Every action in a RecursiveBinder keymap (keys are {mods, key, name}, values
+--- are functions or nested keymaps) as {text = "System › Lock screen",
+--- combo = "⌘⌃⌥SPACE S L", fn = action}, sorted by combo. The rows appear in
+--- the cheatsheet, and picking one runs fn. Group names' trailing "+" (as in
+--- "system+") is dropped. Plain Lua; see spec/hotkey_cheatsheet_spec.lua.
+function hotkeyCheatsheet.describeKeymap(mods, key, keymap)
+  local list = {}
+  local function walk(map, names, combo)
+    for k, v in pairs(map) do
+      local name = capitalize((k[3] or "?"):gsub("%+$", ""))
+      local here = {}
+      for i, n in ipairs(names) do here[i] = n end
+      here[#here + 1] = name
+      local step = combo .. " " .. modifiersToString(k[1]) .. tostring(k[2]):upper()
+      if type(v) == "table" then
+        walk(v, here, step)
+      else
+        list[#list + 1] = { text = table.concat(here, " › "), combo = step, fn = v }
+      end
+    end
+  end
+  walk(keymap, {}, comboString(mods, key))
+  table.sort(list, function(a, b) return a.combo < b.combo end)
+  for _, e in ipairs(list) do sequenceEntries[#sequenceEntries + 1] = e end
+  return list
+end
+
 -- Every currently enabled hotkey as {combo, description} pairs
 function hotkeyCheatsheet.entries()
   local list = {}
@@ -81,17 +117,21 @@ function hotkeyCheatsheet.entries()
   return list
 end
 
--- Panel listing every enabled hotkey, filtered by fuzzy search on the
+-- Panel listing every enabled hotkey and leader action, filtered by fuzzy search on the
 -- description and the shortcut (so "⌘⌃⌥" lists the Hyper bindings).
 -- Enter (or a click) runs the selected hotkey; see modules/searchPanel.lua.
 local panel = searchPanel.new({
   placeholder = "Search hotkeys",
   emptyText = "No matching hotkeys",
   onRun = function(item)
-    local mods, key = hotkeyCheatsheet.parseCombo(item.combo)
     -- give focus a moment to return to the previous app, so window hotkeys
     -- act on its window
-    hs.timer.doAfter(0.2, function() hs.eventtap.keyStroke(mods, key) end)
+    if item.fn then
+      hs.timer.doAfter(0.2, item.fn)
+    else
+      local mods, key = hotkeyCheatsheet.parseCombo(item.combo)
+      hs.timer.doAfter(0.2, function() hs.eventtap.keyStroke(mods, key) end)
+    end
   end,
 })
 
@@ -100,6 +140,12 @@ local function choices()
   for _, e in ipairs(hotkeyCheatsheet.entries()) do
     if e[1] ~= ownCombo then
       list[#list + 1] = { text = e[2], combo = e[1] }
+    end
+  end
+  for _, e in ipairs(sequenceEntries) do
+    -- running the cheatsheet from itself would only reopen it
+    if e.fn ~= hotkeyCheatsheet.toggle then
+      list[#list + 1] = { text = e.text, combo = e.combo, fn = e.fn }
     end
   end
   table.sort(list, function(a, b) return a.combo < b.combo end)

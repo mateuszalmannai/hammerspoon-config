@@ -38,6 +38,7 @@ Yubico Authenticator are installed. Edit `modules/app_launcher.lua` and
   finds "Remind calendar", `⌘⌃⌥` lists the Hyper bindings). Enter runs the
   selected hotkey; Esc closes. It's built from the live hotkey list, so it's
   always current.
+- The ⌘⌥H list also has a row for every leader-menu action, e.g. "System › Lock screen" with `⌘⌃⌥SPACE S L`, so searching "lock" finds it even if you've forgotten the key sequence. Enter runs the action directly. The rows are built from the leader's own keymap in `modules/leader.lua`, so they stay in sync.
 - **Hyper+/**: the same kind of searchable list, for the menu shortcuts of the frontmost app. Each row shows the menu path (e.g. "Edit › Find › Find Next") and its shortcut, so you can search by either; Enter picks that menu item.
 
 ## Layout
