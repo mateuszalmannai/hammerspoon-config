@@ -264,7 +264,7 @@ make test
 `make test` pins `TZ=Europe/Berlin` so the daylight-saving cases are
 deterministic.
 
-Code that does call `hs.*` can be tested by stubbing just the functions it uses: `spec/network_spec.lua` tests the Wi-Fi menu title (`network.wifiTitle`) with fake `hs.wifi` and `hs.location` for each case (connected, Wi-Fi off, no Location access, not connected).
+Code that does call `hs.*` can be tested by stubbing just the functions it uses: `spec/network_spec.lua` tests the Wi-Fi menu title with fake `hs.*` functions: `network.wifiTitle` with fake `hs.wifi` and `hs.location` for each case (connected, Wi-Fi off, no Location access, not connected), and `network.styledWifiTitle` (small font for long titles, text colour in light and dark mode) with fake `hs.host` and `hs.styledtext`.
 
 ## License
 

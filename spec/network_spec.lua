@@ -62,3 +62,56 @@ describe("network.wifiTitle", function()
     assert.are.equal("Wi-Fi off", network.wifiTitle())
   end)
 end)
+
+-- Stubs hs.host and hs.styledtext: style is what hs.host.interfaceStyle()
+-- returns ("Dark", or nil in light mode); styled text comes back as a plain
+-- table so the font and colour can be checked
+local function stubStyle(style)
+  hs.host = { interfaceStyle = function() return style end }
+  hs.styledtext = { new = function(text, attrs) return { text = text, attrs = attrs } end }
+end
+
+describe("network.styledWifiTitle", function()
+  it("leaves short titles as plain strings, in the menu bar's own font", function()
+    stubStyle("Dark")
+    assert.are.equal("STAYONRHODES", network.styledWifiTitle("STAYONRHODES"))
+  end)
+
+  it("leaves a title of exactly 16 characters as a plain string", function()
+    stubStyle("Dark")
+    assert.are.equal("0123456789abcdef", network.styledWifiTitle("0123456789abcdef"))
+  end)
+
+  it("counts characters, not bytes, so umlauts don't make a title long", function()
+    stubStyle("Dark")
+    -- 15 characters, 17 bytes
+    assert.are.equal("Café-Gäste-WLAN", network.styledWifiTitle("Café-Gäste-WLAN"))
+  end)
+
+  it("still shrinks titles over 16 characters that contain umlauts", function()
+    stubStyle("Dark")
+    assert.are.equal(10, network.styledWifiTitle("Café-Gäste-WLAN-5G").attrs.font.size)
+  end)
+
+  it("draws longer titles in a 10 pt font", function()
+    stubStyle("Dark")
+    local styled = network.styledWifiTitle("0123456789abcdefg")
+    assert.are.equal("0123456789abcdefg", styled.text)
+    assert.are.equal(10, styled.attrs.font.size)
+  end)
+
+  it("uses white text in dark mode", function()
+    stubStyle("Dark")
+    assert.are.equal("#FFFFFF", network.styledWifiTitle("A-Very-Long-Network-Name").attrs.color.hex)
+  end)
+
+  it("uses black text in light mode", function()
+    stubStyle(nil)
+    assert.are.equal("#000000", network.styledWifiTitle("A-Very-Long-Network-Name").attrs.color.hex)
+  end)
+
+  it("shrinks long status titles too, not just SSIDs", function()
+    stubStyle("Dark")
+    assert.are.equal(10, network.styledWifiTitle("Wi-Fi: allow Location").attrs.font.size)
+  end)
+end)

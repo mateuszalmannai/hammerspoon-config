@@ -56,15 +56,17 @@ local wifiSmallFontSize = 10
 
 -- styled text doesn't follow the menu bar's text colour by itself, so pick
 -- it from light/dark mode (as SpeedMenu does)
-local function styledWifiTitle(title)
-  if #title <= wifiLongTitle then return title end
+function M.styledWifiTitle(title)
+  -- count characters (UTF-8 code points), not bytes, so umlauts count once;
+  -- falls back to bytes if the title isn't valid UTF-8
+  if (utf8.len(title) or #title) <= wifiLongTitle then return title end
   local color = hs.host.interfaceStyle() == "Dark" and "#FFFFFF" or "#000000"
   return hs.styledtext.new(title, { font = { size = wifiSmallFontSize }, color = { hex = color } })
 end
 
 function M.startWifiMenu()
   M.wifiMenu = hs.menubar.new()
-  local function update() M.wifiMenu:setTitle(styledWifiTitle(M.wifiTitle())) end
+  local function update() M.wifiMenu:setTitle(M.styledWifiTitle(M.wifiTitle())) end
   M.wifiMenu:setClickCallback(function()
     hs.execute("open 'x-apple.systempreferences:com.apple.wifi-settings-extension'")
   end)
