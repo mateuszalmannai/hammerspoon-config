@@ -17,7 +17,6 @@ local hyper = { "ctrl", "alt", "cmd" }
 appLauncher.bindAppHotkeys()
 windowMgmt.bindWindowHotkeys()
 network.bindPingHotkey()
-network.startWifiMenu()
 miscHotkeys.bindMiscHotkeys()
 leader.bindLeader()
 
@@ -89,6 +88,9 @@ hotkeyCheatsheet.describe({"ctrl"}, "/", "Toggle mic mute (hold for push-to-talk
 -- SpeedMenu: upload/download speed in the menu bar
 hs.loadSpoon("SpeedMenu")
 spoon.SpeedMenu:start()
+-- Wi-Fi name, created right after SpeedMenu so it sits just left of it
+-- (each new menu bar item goes to the left of the existing ones)
+network.startWifiMenu()
 -- redraw in the right text color when switching light/dark mode
 themeWatcher = hs.distributednotifications.new(function()
   spoon.SpeedMenu:rescan()
