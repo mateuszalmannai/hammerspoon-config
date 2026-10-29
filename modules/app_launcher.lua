@@ -18,6 +18,7 @@ local cmdOptApps = {
 }
 
 function M.bindAppHotkeys()
+  hotkeyCheatsheet.group("Apps")
 
   for key, app in pairs(applicationHotkeys) do
     hotkeyCheatsheet.bindHotkey(cmd_shift, key, function()

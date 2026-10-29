@@ -95,3 +95,29 @@ describe("hotkeyCheatsheet.describeViews", function()
     assert.are.equal("burndown", shown)
   end)
 end)
+
+describe("hotkeyCheatsheet.orderRows", function()
+  local function row(combo, group) return { text = combo, combo = combo, group = group } end
+  local function combos(rows)
+    local out = {}
+    for i, r in ipairs(rows) do out[i] = r.group .. " " .. r.combo end
+    return out
+  end
+
+  it("orders by the listed groups, then unlisted ones alphabetically, then Other", function()
+    local rows = hotkeyCheatsheet.orderRows({
+      row("⌘⌥1", "Windows"), row("⌘⇧B", "Apps"), row("✧N", nil),
+      row("⌘⌃⌥W", "Zebra"), row("⌘⌃⌥C", "Desk"), row("⌘⌃⌥UP", "Windows"),
+    }, { "Apps", "Windows" })
+    assert.are.same({
+      "Apps ⌘⇧B", "Windows ⌘⌃⌥UP", "Windows ⌘⌥1", "Desk ⌘⌃⌥C", "Zebra ⌘⌃⌥W", "Other ✧N",
+    }, combos(rows))
+  end)
+
+  it("puts a popup's keys right after the hotkey that opens it", function()
+    local rows = hotkeyCheatsheet.orderRows({
+      row("⌘⌃⌥W 2", "Tools"), row("⌘⌃⌥T", "Tools"), row("⌘⌃⌥W", "Tools"), row("⌘⌃⌥W 1", "Tools"),
+    }, { "Tools" })
+    assert.are.same({ "Tools ⌘⌃⌥T", "Tools ⌘⌃⌥W", "Tools ⌘⌃⌥W 1", "Tools ⌘⌃⌥W 2" }, combos(rows))
+  end)
+end)

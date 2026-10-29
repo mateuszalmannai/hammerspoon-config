@@ -33,19 +33,23 @@ M.actions = {
 }
 
 function M.bindMiscHotkeys()
+  hotkeyCheatsheet.group("Hammerspoon")
 -- RELOAD CONFIG
   hotkeyCheatsheet.bindHotkey(hyper, "y", hs.toggleConsole, "Toggle Hammerspoon Console")
   hotkeyCheatsheet.bindHotkey(hyper, "r", hs.reload, "Reload Hammerspoon Config")
 
   hotkeyCheatsheet.bindToggle(cmd_opt, 'h', "Toggle Hammerspoon cheatsheet")
 
+  hotkeyCheatsheet.group("System")
   hotkeyCheatsheet.bindHotkey(cmd_opt, "K", M.actions.killDock, "Kill Dock")
   hotkeyCheatsheet.bindHotkey({"alt", "shift"}, "t", M.actions.showTime, "Show current time")
+  hotkeyCheatsheet.bindHotkey(hyper, "l", M.actions.lockScreen, "Lock screen")
+  hotkeyCheatsheet.bindHotkey(hyper, "z", M.actions.sleep, "Put system to sleep")
+
+  hotkeyCheatsheet.group("Clipboard")
   hotkeyCheatsheet.bindHotkey(cmd_opt, "t", M.actions.copyEpochHex, "Copy unix epoch hex value to clipboard")
   hotkeyCheatsheet.bindHotkey(cmd_opt, "d", M.actions.copyDate, "Copy date to clipboard")
   hotkeyCheatsheet.bindHotkey(hyper, "V", M.actions.typeClipboard, "Type clipboard contents: circumvent pasteblockers")
-  hotkeyCheatsheet.bindHotkey(hyper, "l", M.actions.lockScreen, "Lock screen")
-  hotkeyCheatsheet.bindHotkey(hyper, "z", M.actions.sleep, "Put system to sleep")
 end
 
 return M

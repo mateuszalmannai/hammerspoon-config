@@ -13,6 +13,9 @@
 --   })
 --   p:show(items)       -- items: { {text = "...", combo = "⌘K", ...}, ... }
 --   p:show(nil)         -- open now showing "Loading…", then p:setItems(items)
+--
+-- Items may have a `group`: while the search box is empty, a heading is shown
+-- before each run of items with the same group (so pass them sorted by group).
 
 local fuzzy = require('modules.fuzzy')
 
@@ -40,6 +43,9 @@ local html = [==[
   .combo { flex: none; font-size: 13px; padding: 2px 7px; border-radius: 5px;
     background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8); }
   .empty { padding: 14px 10px; color: rgba(255, 255, 255, 0.4); }
+  .section { padding: 12px 10px 4px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; color: rgba(255, 255, 255, 0.4); }
+  .section:first-child { padding-top: 2px; }
 </style></head><body>
 <div id="panel"><input id="q" autocomplete="off" spellcheck="false"><div id="list"></div></div>
 <script>
@@ -52,16 +58,23 @@ local html = [==[
       const e = document.createElement('div'); e.className = 'empty';
       e.textContent = empty; list.appendChild(e); return;
     }
+    const rows = [];
+    let group = null;
     items.forEach((it, i) => {
+      if (it.group && it.group !== group) {
+        const h = document.createElement('div'); h.className = 'section';
+        h.textContent = it.group; list.appendChild(h); group = it.group;
+      }
       const r = document.createElement('div'); r.className = 'row' + (i === sel ? ' sel' : '');
       const d = document.createElement('span'); d.className = 'desc'; d.textContent = it.text;
       const c = document.createElement('span'); c.className = 'combo'; c.textContent = it.combo;
       r.append(d, c);
       r.onmousemove = () => { if (sel !== i) { sel = i; draw(); } };
       r.onclick = () => post({ type: 'run', id: it.id });
-      list.appendChild(r);
+      list.appendChild(r); rows.push(r);
     });
-    list.children[sel].scrollIntoView({ block: 'nearest' });
+    // at the top, show the first section's heading too
+    if (sel === 0) list.scrollTop = 0; else rows[sel].scrollIntoView({ block: 'nearest' });
   }
   function render(data) {
     items = Array.isArray(data.items) ? data.items : []; empty = data.empty || ''; sel = 0; draw();
@@ -118,7 +131,12 @@ function searchPanel:payload(placeholder)
     empty = "Loading…"
   else
     local matches = fuzzy.filter(self.query, self.items, function(it) return { it.text, it.combo } end)
-    for i, it in ipairs(matches) do shown[i] = { text = it.text, combo = it.combo, id = it.id } end
+    -- rows with a group are shown in sections until something is typed, then
+    -- as one list ranked by how well they match
+    local sections = not self.query:find("%S")
+    for i, it in ipairs(matches) do
+      shown[i] = { text = it.text, combo = it.combo, id = it.id, group = sections and it.group or nil }
+    end
   end
   return { items = shown, empty = empty, placeholder = placeholder }
 end

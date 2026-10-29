@@ -21,6 +21,7 @@ function M.moveWindowToDisplay(d)
 end
 
 function M.bindWindowHotkeys()
+  hotkeyCheatsheet.group("Windows")
   hotkeyCheatsheet.bindHotkey(cmd_opt, "1", M.moveWindowToDisplay(1), "Move window to display 1")
   hotkeyCheatsheet.bindHotkey(cmd_opt, "2", M.moveWindowToDisplay(2), "Move window to display 2")
   hotkeyCheatsheet.bindHotkey(cmd_opt, "3", M.moveWindowToDisplay(3), "Move window to display 3")

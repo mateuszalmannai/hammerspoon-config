@@ -45,6 +45,7 @@ spoon.MiroWindowsManager:bindHotkeys({
   left = {hyper, "left"},
   fullscreen = {hyper, "f"}
 })
+hotkeyCheatsheet.group("Windows")
 hotkeyCheatsheet.describe(hyper, "up", "Snap window to top (repeat: 1/2, 1/3, 2/3)")
 hotkeyCheatsheet.describe(hyper, "right", "Snap window to right (repeat: 1/2, 1/3, 2/3)")
 hotkeyCheatsheet.describe(hyper, "down", "Snap window to bottom (repeat: 1/2, 1/3, 2/3)")
@@ -53,7 +54,10 @@ hotkeyCheatsheet.describe(hyper, "f", "Full screen (repeat: full, 3/4, 1/2)")
 
 -- Menu shortcuts of the frontmost app, in the cheatsheet's searchable panel
 local appShortcuts = require('modules.appShortcuts')
+hotkeyCheatsheet.group("Hammerspoon")
 hotkeyCheatsheet.bindHotkey(hyper, "/", appShortcuts.toggle, "Search menu shortcuts of frontmost app")
+
+hotkeyCheatsheet.group("Tools")
 
 -- AClock: big clock in the middle of the screen for a few seconds
 hs.loadSpoon("AClock")
@@ -76,6 +80,7 @@ spoon.MountedVolumes:bindHotkeys({ toggle = { hyper, "m" } })
 hotkeyCheatsheet.describe(hyper, "m", "Toggle mounted volumes on desktop")
 
 -- MicMute: menu bar mic status; tap to toggle, hold for push-to-talk
+hotkeyCheatsheet.group("System")
 hs.loadSpoon("MicMute")
 spoon.MicMute:bindHotkeys({ toggle = { {"ctrl"}, "/" } }, 0.75)
 hotkeyCheatsheet.describe({"ctrl"}, "/", "Toggle mic mute (hold for push-to-talk)")
@@ -123,6 +128,8 @@ end
 Install:andUse("TimeFlow")
 Install:andUse("HCalendar")
 Install:andUse("BingDaily")
+
+hotkeyCheatsheet.group("Tools")
 
 -- RemindCalendar: next two weeks from remind (same files as wyrd/rcal) in a popup
 hs.loadSpoon("RemindCalendar")

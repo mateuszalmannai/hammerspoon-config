@@ -25,6 +25,7 @@ local function pingResult(object, message)
 end
 
 function M.bindPingHotkey()
+  hotkeyCheatsheet.group("System")
   hotkeyCheatsheet.bindHotkey(cmd_opt, "p", function()
     local success, err = pcall(function()
       hs.network.ping.ping("8.8.8.8", 1, 0.01, 1.0, "any", pingResult)

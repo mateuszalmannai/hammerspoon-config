@@ -40,6 +40,7 @@ Yubico Authenticator are installed. Edit `modules/app_launcher.lua` and
   always current.
 - The ⌘⌥H list also has a row for every leader-menu action, e.g. "System › Lock screen" with `⌘⌃⌥SPACE S L`, so searching "lock" finds it even if you've forgotten the key sequence. Enter runs the action directly. The rows are built from the leader's own keymap in `modules/leader.lua`, so they stay in sync.
 - It also has a row for each key inside the Remind, Taskwarrior and HSearch popups, e.g. "Remind calendar › Two weeks" with `⌘⌃⌥W 2` (open the popup, then press 2). Enter opens the popup straight on that view or source. The Remind and Taskwarrior rows come from each spoon's `views` list, so they stay in sync; the HSearch sources are listed in `init.lua`.
+- With the search box empty, the list is split into sections (Windows, Apps, Tools, Clipboard, System, Hammerspoon, Leader menu) for browsing; typing switches to one list ranked by match. A hotkey's section is set by calling `hotkeyCheatsheet.group("Name")` before binding it, and the section order is `hotkeyCheatsheet.groupOrder` in `modules/hotkeyCheatsheet.lua`.
 - **Hyper+/**: the same kind of searchable list, for the menu shortcuts of the frontmost app. Each row shows the menu path (e.g. "Edit › Find › Find Next") and its shortcut, so you can search by either; Enter picks that menu item.
 
 ## Layout
@@ -67,6 +68,7 @@ Makefile                      `make test`
 Bind through the cheatsheet helper so the hotkey shows up in ⌘⌥H:
 
 ```lua
+hotkeyCheatsheet.group("Tools")  -- the ⌘⌥H section for the hotkeys bound after this
 hotkeyCheatsheet.bindHotkey(hyper, "x", function() ... end, "What it does")
 ```
 
