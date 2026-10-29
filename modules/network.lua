@@ -49,9 +49,22 @@ local function wifiTitle()
   return "Wi-Fi: not connected"
 end
 
+-- Titles longer than this are drawn in a smaller font, so a long SSID is
+-- less likely to be hidden when the menu bar runs out of room
+local wifiLongTitle = 16
+local wifiSmallFontSize = 10
+
+-- styled text doesn't follow the menu bar's text colour by itself, so pick
+-- it from light/dark mode (as SpeedMenu does)
+local function styledWifiTitle(title)
+  if #title <= wifiLongTitle then return title end
+  local color = hs.host.interfaceStyle() == "Dark" and "#FFFFFF" or "#000000"
+  return hs.styledtext.new(title, { font = { size = wifiSmallFontSize }, color = { hex = color } })
+end
+
 function M.startWifiMenu()
   M.wifiMenu = hs.menubar.new()
-  local function update() M.wifiMenu:setTitle(wifiTitle()) end
+  local function update() M.wifiMenu:setTitle(styledWifiTitle(wifiTitle())) end
   M.wifiMenu:setClickCallback(function()
     hs.execute("open 'x-apple.systempreferences:com.apple.wifi-settings-extension'")
   end)
@@ -60,6 +73,7 @@ function M.startWifiMenu()
   M.wifiWatcher = hs.wifi.watcher.new(update)
     :watchingFor({ "SSIDChange", "powerChange", "linkChange" })
     :start()
+  M.wifiThemeWatcher = hs.distributednotifications.new(update, "AppleInterfaceThemeChangedNotification"):start()
   update()
 
   -- First run: hs.location.start() makes macOS ask for permission; poll until
