@@ -51,6 +51,7 @@ modules/
   hotkeyCheatsheet.lua        ⌘⌥H searchable cheatsheet + bindHotkey/describe helpers
   appShortcuts.lua            Hyper+/ searchable menu shortcuts of the frontmost app
   searchPanel.lua             the dark searchable panel both of them use
+  hotkeyReadme.lua            `make readme`: writes the README's hotkey tables from the cheatsheet
   fuzzy.lua                   fuzzy matching for the cheatsheet search
   popupLayout.lua             font fitting for the Remind and Taskwarrior popups
   app_launcher.lua            launch-or-focus app hotkeys
@@ -60,7 +61,7 @@ modules/
   leader.lua                  Hyper+Space leader menu (RecursiveBinder)
 Spoons/                       vendored spoons (see below)
 spec/                         busted unit tests (see Tests)
-Makefile                      `make test`
+Makefile                      `make test`, `make readme`
 ```
 
 ### Adding a hotkey
@@ -79,79 +80,135 @@ hotkeyCheatsheet.describe(hyper, "m", "Toggle mounted volumes on desktop")
 ```
 
 To add a leader-menu entry, add it to the `keymap` table in `modules/leader.lua`.
+
+Then run `make readme` to update the hotkey tables below.
 Shared actions live in `M.actions` in `modules/misc_hotkeys.lua`, so a hotkey
 and its leader entry call the same function.
 
 ## Hotkeys
 
-### Leader menu: Hyper+Space
+Hyper is ⌘⌃⌥. An arrow means "then": Hyper+Space → s → l is Hyper+Space, then `s`, then `l`. For the leader menu (Hyper+Space), a helper bar at the bottom of the screen shows the next keys; Escape cancels.
 
-Press Hyper+Space, then follow the helper bar at the bottom of the screen.
-Escape cancels.
+The tables below are generated from the ⌘⌥H cheatsheet with `make readme`, so don't edit them by hand: change the description in the code and rerun it.
 
-| Group | Keys |
+<!-- hotkeys:start -->
+
+### Windows
+
+| Hotkey | Action |
 |---|---|
-| `a` apps | `b` Brave, `w` WhatsApp, `f` Fantastical, `t` WezTerm, `s` Strongbox, `y` Yubico |
-| `w` window | `1` / `2` / `3` move window to that display |
-| `c` clipboard | `d` copy date, `e` copy epoch hex, `v` type clipboard |
-| `s` system | `l` lock, `z` sleep, `k` kill Dock, `t` show time |
-| `h` hammerspoon | `r` reload, `c` console, `h` cheatsheet |
+| Hyper+↓ | Snap window to bottom (repeat: 1/2, 1/3, 2/3) |
+| Hyper+F | Full screen (repeat: full, 3/4, 1/2) |
+| Hyper+← | Snap window to left (repeat: 1/2, 1/3, 2/3) |
+| Hyper+→ | Snap window to right (repeat: 1/2, 1/3, 2/3) |
+| Hyper+↑ | Snap window to top (repeat: 1/2, 1/3, 2/3) |
+| ⌘⌥1 | Move window to display 1 |
+| ⌘⌥2 | Move window to display 2 |
+| ⌘⌥3 | Move window to display 3 |
 
 ### Apps
 
-| Hotkey | App |
+| Hotkey | Action |
 |---|---|
-| ⌘⇧B | Brave Browser |
-| ⌘⇧W | WhatsApp |
-| ⌘⌥C | Fantastical |
-| ⌘⌥W | WezTerm |
-| ⌘⌥S | Strongbox |
-| ⌘⌥Y | Yubico Authenticator |
+| ⌘⇧B | Launch or focus Brave Browser |
+| ⌘⇧W | Launch or focus WhatsApp |
+| ⌘⌥C | Launch or focus Fantastical |
+| ⌘⌥S | Launch or focus Strongbox |
+| ⌘⌥W | Launch or focus WezTerm |
+| ⌘⌥Y | Launch or focus Yubico Authenticator |
 
-### Windows (MiroWindowsManager)
+### Tools
 
 | Hotkey | Action |
 |---|---|
-| Hyper+←/→/↑/↓ | Snap to that half. Press again to cycle 1/2 → 1/3 → 2/3 |
-| Hyper+F | Full screen. Press again to cycle full → 3/4 → 1/2 |
-| ⌘⌥1 / 2 / 3 | Move window to display 1 / 2 / 3 |
+| Hyper+C | Show big clock (AClock) |
+| Hyper+G | HSearch (d/n/s/t + Tab: dates, notes, thesaurus, Brave tabs) |
+| Hyper+G → d | HSearch › Dates |
+| Hyper+G → n | HSearch › Notes |
+| Hyper+G → s | HSearch › Thesaurus |
+| Hyper+G → t | HSearch › Brave tabs |
+| Hyper+M | Toggle mounted volumes on desktop |
+| Hyper+N | Quick note to inbx.md (Uncategorised): Enter saves, Esc cancels |
+| Hyper+P | Pomodoro timer: start, or pause/resume (Cherry) |
+| Hyper+T | Taskwarrior popup: show or hide (n/b/h/s: next, burndown, history, summary; Esc or click closes) |
+| Hyper+T → b | Taskwarrior › Burndown |
+| Hyper+T → h | Taskwarrior › History |
+| Hyper+T → n | Taskwarrior › Next |
+| Hyper+T → s | Taskwarrior › Summary |
+| Hyper+W | Remind calendar popup: show or hide (1/2/m: week, two weeks, month; Esc or click closes) |
+| Hyper+W → 1 | Remind calendar › Week |
+| Hyper+W → 2 | Remind calendar › Two weeks |
+| Hyper+W → m | Remind calendar › Month |
+| Hyper+⇧N | Open inbx.md in Marked (mk) |
+| Hyper+⇧P | Pomodoro stats overlay: show or hide (Esc or click also closes it) (Cherry) |
 
-### Clipboard and text
+### Clipboard
 
 | Hotkey | Action |
 |---|---|
-| ⌘⌥D | Copy today's date (`YYYY-MM-DD-`) |
-| ⌘⌥T | Copy the current Unix time as uppercase hex |
-| Hyper+V | Type the clipboard contents as keystrokes (for fields that block paste) |
+| Hyper+V | Type clipboard contents: circumvent pasteblockers |
+| ⌘⌥D | Copy date to clipboard |
+| ⌘⌥T | Copy unix epoch hex value to clipboard |
 
 ### System
 
 | Hotkey | Action |
 |---|---|
+| ⌃/ | Toggle mic mute (hold for push-to-talk) |
 | Hyper+L | Lock screen |
-| Hyper+Z | Sleep |
-| ⌘⌥K | Kill (restart) the Dock |
-| ⌘⌥P | Ping 8.8.8.8 and report network quality |
-| ⌥⇧T | Show the current time |
-| Hyper+C | Big clock in the middle of the screen (AClock) |
-| Hyper+M | Toggle mounted volumes on the desktop |
-| Hyper+W | Remind calendar popup (RemindCalendar). While open: `1` one week, `2` two weeks, `m` month; Esc or click closes |
-| Hyper+T | Taskwarrior popup (TaskwarriorViews) for the active context, in taskwarrior's colours. While open: `n` next, `b` weekly burndown, `h` monthly history, `s` project summary; Esc or click closes. Read-only, never syncs |
-| Hyper+N | Quick note (QuickNote): one-line box; Enter adds `- <timestamp> text` to the Uncategorised section of `~/markdown/running_notes/inbx.md` (set `file` and `section` in `init.lua`), Esc cancels. Clicking away keeps the text for next time |
-| Hyper+⇧N | Open the QuickNote file (`inbx.md`) in Marked, via its `mk` command-line tool |
-| Hyper+G | Search box (HSearch): type `d` / `n` / `s` / `t` + Tab for dates, notes, thesaurus, Brave tabs |
-| Hyper+P | Pomodoro timer (Cherry): start, or pause/resume. Shown in the menu bar while running |
-| Hyper+⇧P | Pomodoro stats overlay (Cherry). Esc or click closes |
-| ⌃/ | Mic mute: tap to toggle, hold for push-to-talk (MicMute) |
+| Hyper+Z | Put system to sleep |
+| ⌘⌥K | Kill Dock |
+| ⌘⌥P | Check network speed |
+| ⌥⇧T | Show current time |
 
 ### Hammerspoon
 
 | Hotkey | Action |
 |---|---|
-| ⌘⌥H | Hotkey cheatsheet |
-| Hyper+/ | Menu shortcuts of the frontmost app |
-| Hyper+Y | Hammerspoon console |
-| Hyper+R | Reload config |
+| Hyper+/ | Search menu shortcuts of frontmost app |
+| Hyper+R | Reload Hammerspoon Config |
+| Hyper+Y | Toggle Hammerspoon Console |
+| ⌘⌥H | Toggle Hammerspoon cheatsheet |
+
+### Leader menu
+
+| Hotkey | Action |
+|---|---|
+| Hyper+Space | Leader menu (apps, window, clipboard, system, hammerspoon) |
+| Hyper+Space → a → b | Apps › Brave |
+| Hyper+Space → a → f | Apps › Fantastical |
+| Hyper+Space → a → s | Apps › Strongbox |
+| Hyper+Space → a → t | Apps › WezTerm |
+| Hyper+Space → a → w | Apps › WhatsApp |
+| Hyper+Space → a → y | Apps › Yubico |
+| Hyper+Space → c → d | Clipboard › Copy date |
+| Hyper+Space → c → e | Clipboard › Copy epoch hex |
+| Hyper+Space → c → v | Clipboard › Type clipboard |
+| Hyper+Space → h → c | Hammerspoon › Console |
+| Hyper+Space → h → h | Hammerspoon › Cheatsheet |
+| Hyper+Space → h → r | Hammerspoon › Reload |
+| Hyper+Space → s → k | System › Kill Dock |
+| Hyper+Space → s → l | System › Lock screen |
+| Hyper+Space → s → t | System › Show time |
+| Hyper+Space → s → z | System › Sleep |
+| Hyper+Space → w → 1 | Window › To display 1 |
+| Hyper+Space → w → 2 | Window › To display 2 |
+| Hyper+Space → w → 3 | Window › To display 3 |
+
+<!-- hotkeys:end -->
+
+### More about some hotkeys
+
+- **Copy date** copies today's date as `YYYY-MM-DD-`.
+- **Copy unix epoch hex** copies the current Unix time as uppercase hex.
+- **Type clipboard contents** types the clipboard as keystrokes, for fields that block paste.
+- **Kill Dock** restarts the Dock.
+- **Check network speed** pings 8.8.8.8 and reports the network quality.
+- **Taskwarrior popup** shows the active context, in taskwarrior's colours. It's read-only and never syncs.
+- **Quick note**:
+  - Enter adds `- <timestamp> text` to the Uncategorised section of `~/markdown/running_notes/inbx.md`; set `file` and `section` in `init.lua`.
+  - Clicking away keeps the text for next time.
+- **Pomodoro timer** (Cherry) is shown in the menu bar while running.
 
 ## Automatic behaviour
 

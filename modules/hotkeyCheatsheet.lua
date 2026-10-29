@@ -215,16 +215,20 @@ local panel = searchPanel.new({
   end,
 })
 
-local function choices()
+--- hotkeyCheatsheet.rows([all]) -> list
+--- Every row of the cheatsheet ({text, combo, group, fn}), in section order.
+--- Leaves out the rows that only reopen the cheatsheet, unless `all` is true
+--- (the README lists them).
+function hotkeyCheatsheet.rows(all)
   local list = {}
   for _, e in ipairs(hotkeyCheatsheet.entries()) do
-    if e[1] ~= ownCombo then
+    if all or e[1] ~= ownCombo then
       list[#list + 1] = { text = e[2], combo = e[1], group = e[3] }
     end
   end
   for _, e in ipairs(sequenceEntries) do
     -- running the cheatsheet from itself would only reopen it
-    if e.fn ~= hotkeyCheatsheet.toggle then
+    if all or e.fn ~= hotkeyCheatsheet.toggle then
       list[#list + 1] = { text = e.text, combo = e.combo, fn = e.fn, group = e.group }
     end
   end
@@ -240,7 +244,7 @@ function hotkeyCheatsheet.show()
     hs.alert.show("No hotkeys bound!")
     return
   end
-  panel:show(choices())
+  panel:show(hotkeyCheatsheet.rows())
 end
 
 function hotkeyCheatsheet.hide()
