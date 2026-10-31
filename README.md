@@ -227,7 +227,6 @@ The tables below are generated from the ⌘⌥H cheatsheet with `make readme`, s
   network changes (Wi-Fi, Ethernet, VPN) and when switching between light and
   dark mode.
 - **MicMute**: microphone status in the menu bar.
-- **Wi-Fi name** in the menu bar; click it for Wi-Fi settings. It needs Location Services permission for Hammerspoon (macOS asks on first load), and shows "Wi-Fi: allow Location" until it has it.
 - **MountedVolumes**: disks with free-space pie charts on the desktop.
 - **Desktop widgets**: CircleClock, TimeFlow, HCalendar and BingDaily (daily
   Bing wallpaper).
