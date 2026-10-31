@@ -12,6 +12,7 @@ local applicationHotkeys = {
 
 local cmdOptApps = {
   c = 'Fantastical',
+  m = 'MailMate',
   w = 'WezTerm',
   s = 'Strongbox',
   y = 'Yubico Authenticator',
