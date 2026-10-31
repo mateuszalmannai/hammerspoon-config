@@ -119,6 +119,7 @@ The tables below are generated from the ⌘⌥H cheatsheet with `make readme`, s
 | ⌘⇧B | Launch or focus Brave Browser |
 | ⌘⇧W | Launch or focus WhatsApp |
 | ⌘⌥C | Launch or focus Fantastical |
+| ⌘⌥M | Launch or focus MailMate |
 | ⌘⌥S | Launch or focus Strongbox |
 | ⌘⌥W | Launch or focus WezTerm |
 | ⌘⌥Y | Launch or focus Yubico Authenticator |
