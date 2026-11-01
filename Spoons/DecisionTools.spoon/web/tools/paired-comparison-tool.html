@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Make better decisions by systematically comparing options in pairs. Compare alternatives head-to-head to find your top choice.">
+
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self';
+                   script-src 'self' 'unsafe-inline';
+                   style-src 'self' 'unsafe-inline';
+                   img-src 'self' data:;
+                   font-src 'self';
+                   connect-src 'self';
+                   frame-ancestors 'none';
+                   base-uri 'self';
+                   form-action 'self';">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+
+    <title>Paired Comparison - Decision Making Tool</title>
+    <link rel="stylesheet" href="../styles/styles.css">
+</head>
+<body>
+    <a href="#main-input" class="skip-link">Skip to main input</a>
+    <main class="container paired-comparison">
+        <header class="app-header">
+            <div class="header-content">
+                <div>
+                    <a href="../index.html" class="back-link" aria-label="Back to decision tools">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        <span>All Tools</span>
+                    </a>
+                    <h1>Paired Comparison</h1>
+                    <p class="subtitle">Systematic Comparison</p>
+                </div>
+                <div class="header-buttons">
+                    <button id="help-toggle" class="help-toggle" aria-label="Show keyboard shortcuts">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                    </button>
+                    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+                        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Data Management Section -->
+        <section class="data-management-section" aria-label="Data management controls">
+            <div class="data-management-buttons">
+                <button id="clear-all" class="btn-text">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    Clear All
+                </button>
+                <button type="button" id="load-sample-btn" class="btn-text" aria-label="Load sample data">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    Load Sample
+                </button>
+                <input type="file" id="import-file" accept=".json,.csv,application/json,text/csv" style="display: none;" aria-label="Import data file">
+                <button id="import-btn" class="btn-text" aria-label="Import data from file">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                    </svg>
+                    Import
+                </button>
+                <select id="export-select" class="category-transfer" aria-label="Export data">
+                    <option value="">Export...</option>
+                    <option value="json">Export as JSON</option>
+                    <option value="csv">Export as CSV</option>
+                </select>
+                <button type="button" id="save-history-btn" class="btn-text" aria-label="Save to history">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    History
+                </button>
+                <span id="storage-indicator-container"></span>
+            </div>
+        </section>
+
+        <section id="input-section" class="task-input-section" aria-label="Add options to compare">
+            <form id="option-form">
+                <div class="input-group">
+                    <label for="option-input" class="visually-hidden">Enter option to compare</label>
+                    <p class="input-hint">
+                        <span>Quick tips: </span>
+                        <span>Add 2-10 options to compare • ⌘+I to focus input • Enter to add • ? for help</span>
+                    </p>
+                    <div class="input-with-counter">
+                        <input
+                            type="text"
+                            id="main-input"
+                            placeholder="Add an option to compare... (e.g., 'Buy a house', 'Rent apartment')"
+                            maxlength="100"
+                            autocomplete="off"
+                            aria-label="Enter option to compare"
+                            autofocus
+                        >
+                        <span class="char-counter" id="char-counter" aria-live="polite">
+                            <span id="char-count">0</span>/100
+                        </span>
+                    </div>
+                
+                <div class="section-header-inline">
+                    <h2>Your Options</h2>
+                    <span id="option-count" class="section-count">(0)</span>
+                </div>
+            </div>
+        </form>
+        
+        <ul id="options-list" class="item-list" role="list"></ul>
+        
+        <div id="start-section" class="start-section" style="display: none;">
+                <p class="start-message">Add at least 2 options to begin comparing • Press ⌘+Enter to start</p>
+                <button id="start-btn" class="btn-primary" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    Start Comparing (<span id="pair-count">0</span> pairs)
+                </button>
+            </div>
+        </section>
+
+        <!-- Comparison Section -->
+        <section id="comparison-section" class="comparison-section section" aria-label="Compare options" style="display: none;">
+            <div class="section-header">
+                <h2>Which do you prefer?</h2>
+                <div class="progress-indicator">
+                    <span id="progress-text" aria-live="polite" aria-atomic="true">0 of 0 pairs completed</span>
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <p class="comparison-hint">Use ⌘+← or ⌘+→ to select, or ⌘+S to skip</p>
+            
+            <div class="comparison-container">
+                <div class="option-card option-left" id="option-left">
+                    <div class="option-content">
+                        <h3 id="option-left-name">Option A</h3>
+                    </div>
+                </div>
+                
+                <div class="vs-divider">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+                
+                <div class="option-card option-right" id="option-right">
+                    <div class="option-content">
+                        <h3 id="option-right-name">Option B</h3>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="comparison-actions">
+                <button id="skip-btn" class="btn-text">
+                    Skip This Comparison
+                </button>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="results-section" class="results-section section" aria-label="Comparison results" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <div style="display: flex; gap: 0.75rem; align-items: center;">
+                    <button id="rerun-comparison-btn" class="btn-secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="23 4 23 10 17 10"></polyline>
+                            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                        </svg>
+                        Run New Comparison
+                    </button>
+                    <button id="restart-btn" class="btn-text">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                        Clear All
+                    </button>
+                    <input type="file" id="import-file-results" accept=".json,.csv" style="display: none;" aria-label="Import data file">
+                    <button id="import-btn-results" class="btn-text" aria-label="Import data from file">
+                        Import Data
+                    </button>
+                    <select id="export-select-results" class="category-transfer" aria-label="Export data">
+                        <option value="">Export Data...</option>
+                        <option value="json">Export as JSON</option>
+                        <option value="csv">Export as CSV</option>
+                    </select>
+                </div>
+            </div>
+            <div class="results-header">
+                <h2>Results</h2>
+            </div>
+            
+            <div class="results-summary">
+                <div class="winner-card">
+                    <span class="winner-label">Top Choice</span>
+                    <h3 id="winner-name">Option Name</h3>
+                    <p id="winner-stats">0 wins, 0% win rate</p>
+                </div>
+            </div>
+            
+            <div class="rankings-container">
+                <table class="rankings-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Option</th>
+                            <th>Wins</th>
+                            <th>Losses</th>
+                            <th>Win Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rankings-body">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="help-modal" role="dialog" aria-labelledby="help-modal-title" aria-hidden="true">
+        <div class="help-modal-content">
+            <div class="help-modal-header">
+                <h2 id="help-modal-title">Paired Comparison Guide</h2>
+                <button id="help-modal-close" class="help-modal-close" aria-label="Close help">×</button>
+            </div>
+            <div class="help-modal-body">
+                <section class="help-section">
+                    <h3>About Paired Comparison</h3>
+                    <p>Paired Comparison is a decision-making technique that helps you prioritize options by comparing them two at a time. Instead of trying to rank all options at once (which can be overwhelming), you make simple "A or B" choices.</p>
+                    <p>This method reduces cognitive load and reveals your true preferences by forcing direct comparisons. It's particularly useful when you have multiple options that seem equally appealing.</p>
+                </section>
+
+                <section class="help-section">
+                    <h3>How to Use</h3>
+                    <ol>
+                        <li><strong>Add Options:</strong> Enter 2-10 options you want to compare</li>
+                        <li><strong>Start Comparing:</strong> Click "Start Comparing" when ready</li>
+                        <li><strong>Make Choices:</strong> For each pair, click the option you prefer</li>
+                        <li><strong>Skip if Needed:</strong> Use "Skip" if you can't decide (counts as a tie)</li>
+                        <li><strong>View Results:</strong> See your options ranked by win rate</li>
+                    </ol>
+                    <p><strong>Total Pairs:</strong> For <em>n</em> options, you'll make <em>n(n-1)/2</em> comparisons.</p>
+                    <p><strong>Example:</strong> 5 options = 10 comparisons, 10 options = 45 comparisons</p>
+                </section>
+
+                <section class="help-section">
+                    <h3>Keyboard Shortcuts</h3>
+                    <div class="shortcuts-grid">
+                        <dl class="help-list">
+                            <dt><kbd>⌘</kbd> + <kbd>I</kbd></dt>
+                            <dd>Focus option input</dd>
+                            <dt><kbd>⌘</kbd> + <kbd>Enter</kbd></dt>
+                            <dd>Start comparing</dd>
+                            <dt><kbd>⌘</kbd> + <kbd>←</kbd></dt>
+                            <dd>Choose left option</dd>
+                            <dt><kbd>⌘</kbd> + <kbd>→</kbd></dt>
+                            <dd>Choose right option</dd>
+                            <dt><kbd>⌘</kbd> + <kbd>S</kbd></dt>
+                            <dd>Skip comparison</dd>
+                            <dt><kbd>⌘</kbd> + <kbd>R</kbd></dt>
+                            <dd>Restart (clear all data)</dd>
+                            <dt><kbd>?</kbd></dt>
+                            <dd>Show/hide this help</dd>
+                            <dt><kbd>Esc</kbd></dt>
+                            <dd>Close modals</dd>
+                        </dl>
+                    </div>
+                </section>
+
+                <section class="help-section">
+                    <h3>Best Practices</h3>
+                    <ul>
+                        <li><strong>Be Consistent:</strong> Use the same criteria for all comparisons</li>
+                        <li><strong>Decide Quickly:</strong> Your first instinct is often most accurate</li>
+                        <li><strong>Use Specific Options:</strong> "Toyota Camry" is better than "a sedan"</li>
+                        <li><strong>Limit Options:</strong> 5-7 options is optimal; more than 10 becomes tedious</li>
+                        <li><strong>Skip Sparingly:</strong> Too many skips reduce the quality of results</li>
+                        <li><strong>Run Multiple Times:</strong> If results seem off, run a new comparison to verify</li>
+                        <li><strong>Consider Context:</strong> Results reflect your preferences at this moment</li>
+                    </ul>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Utility scripts -->
+    <script src="../utils/app-config.js"></script>
+    <script src="../utils/logger.js"></script>
+    <script src="../utils/error-handler.js"></script>
+    <script src="../utils/theme-manager.js"></script>
+    <script src="../utils/toast-manager.js"></script>
+    <script src="../utils/storage-manager.js"></script>
+    <script src="../utils/character-counter.js"></script>
+    <script src="../utils/modal-manager.js"></script>
+    <script src="../utils/dom-helpers.js"></script>
+    <script src="../utils/import-export-manager.js"></script>
+    <script src="../utils/sample-data-manager.js"></script>
+    <script src="../utils/history-manager.js"></script>
+
+    <!-- Tool script -->
+    <script src="../scripts/paired-comparison-script.js"></script>
+</body>
+</html>

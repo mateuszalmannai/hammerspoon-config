@@ -158,6 +158,12 @@ hotkeyCheatsheet.bindHotkey({ "ctrl", "alt", "cmd", "shift" }, "n", function()
   hs.task.new("/opt/homebrew/bin/mk", nil, { hs.fs.pathToAbsolute(spoon.QuickNote.file) }):start()
 end, "Open " .. spoon.QuickNote.file:match("[^/]+$") .. " in Marked (mk)")
 
+-- DecisionTools: decision-making tools (PMI, Eisenhower, Pareto, …) in a popup
+hs.loadSpoon("DecisionTools")
+hotkeyCheatsheet.bindHotkey(hyper, "d", function()
+  spoon.DecisionTools:toggle()
+end, "Decision tools popup: show or hide (⌘1–⌘8 switch tools; Esc or click elsewhere closes)")
+
 -- Bring the console to the current desktop when opened (e.g. for Cherry stats),
 -- rather than switching to whichever desktop it was last on
 hs.console.behaviorAsLabels({ "fullScreenPrimary", "moveToActiveSpace" })

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Risk Analysis - Assess risks by probability and impact">
+
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self';
+                   script-src 'self' 'unsafe-inline';
+                   style-src 'self' 'unsafe-inline';
+                   img-src 'self' data:;
+                   font-src 'self';
+                   connect-src 'self';
+                   frame-ancestors 'none';
+                   base-uri 'self';
+                   form-action 'self';">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+
+    <title>Risk Analysis - Decision Making</title>
+    <link rel="stylesheet" href="../styles/styles.css">
+</head>
+<body>
+    <a href="#main-input" class="skip-link">Skip to main input</a>
+    <main class="container risk-tool">
+        <header class="app-header">
+            <div class="header-content">
+                <div>
+                    <a href="../index.html" class="back-link" aria-label="Back to decision tools">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        <span>All Tools</span>
+                    </a>
+                    <h1>Risk Analysis</h1>
+                    <p class="subtitle">Probability & Impact Matrix (Risk Score = P × I)</p>
+                </div>
+                <div class="header-buttons">
+                    <button id="help-toggle" class="help-toggle" aria-label="Show keyboard shortcuts">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                    </button>
+                    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+                    <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Data Management Section -->
+        <section class="data-management-section" aria-label="Data management controls">
+            <div class="data-management-buttons">
+                <button type="button" id="clear-all" class="btn-text">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    Clear All
+                </button>
+                <button type="button" id="load-sample-btn" class="btn-text" aria-label="Load sample data">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    Load Sample
+                </button>
+                <input type="file" id="import-file" accept=".json,.csv,application/json,text/csv" style="display: none;" aria-label="Import data file">
+                <button type="button" id="import-btn" class="btn-text" aria-label="Import data from file">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                    </svg>
+                    Import
+                </button>
+                <select id="export-select" class="category-transfer" aria-label="Export data">
+                    <option value="">Export...</option>
+                    <option value="json">Export as JSON</option>
+                    <option value="csv">Export as CSV</option>
+                </select>
+                <button type="button" id="save-history-btn" class="btn-text" aria-label="Save to history">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    History
+                </button>
+                <span id="storage-indicator-container"></span>
+            </div>
+        </section>
+
+        <section class="task-input-section" aria-label="Add new risk">
+            <form id="risk-form">
+                <div class="input-group">
+                    <label for="risk-input" class="visually-hidden">Risk description</label>
+                    <p class="input-hint">
+                        <span>Quick tips: </span>
+                        <span>Enter to add • Ctrl+1-5 (Probability) • Alt+1-5 (Impact) • ? for help</span>
+                    </p>
+                    <div class="input-with-counter">
+                        <input
+                            type="text"
+                            id="main-input"
+                            placeholder="Enter a risk to assess..."
+                            required
+                            aria-required="true"
+                            autocomplete="off"
+                            maxlength="500"
+                            autofocus>
+                        <span class="char-counter" id="char-counter" aria-live="polite">
+                            <span id="char-count">0</span>/500
+                        </span>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <div class="rating-selectors">
+                        <!-- Probability Selector -->
+                        <div class="probability-selector">
+                            <label class="selector-label">Probability (1-5):</label>
+                            <div class="rating-buttons" role="group" aria-label="Select probability">
+                                <button type="button" class="rating-btn" data-probability="1" aria-label="Very Low" title="Very Low">1</button>
+                                <button type="button" class="rating-btn" data-probability="2" aria-label="Low" title="Low">2</button>
+                                <button type="button" class="rating-btn active" data-probability="3" aria-label="Medium" title="Medium">3</button>
+                                <button type="button" class="rating-btn" data-probability="4" aria-label="High" title="High">4</button>
+                                <button type="button" class="rating-btn" data-probability="5" aria-label="Very High" title="Very High">5</button>
+                            </div>
+                        </div>
+
+                        <!-- Impact Selector -->
+                        <div class="impact-selector">
+                            <label class="selector-label">Impact (1-5):</label>
+                            <div class="rating-buttons" role="group" aria-label="Select impact">
+                                <button type="button" class="rating-btn" data-impact="1" aria-label="Very Low" title="Very Low">1</button>
+                                <button type="button" class="rating-btn" data-impact="2" aria-label="Low" title="Low">2</button>
+                                <button type="button" class="rating-btn active" data-impact="3" aria-label="Medium" title="Medium">3</button>
+                                <button type="button" class="rating-btn" data-impact="4" aria-label="High" title="High">4</button>
+                                <button type="button" class="rating-btn" data-impact="5" aria-label="Very High" title="Very High">5</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <!-- Risk Statistics Dashboard -->
+        <section class="risk-stats-section" aria-label="Risk statistics">
+            <div id="risk-stats" class="risk-stats"></div>
+        </section>
+
+        <section class="matrix-section" aria-label="Risk Matrix">
+            <div class="matrix-grid">
+                <!-- Quadrant 1: Critical (High Probability & High Impact) -->
+                <div class="quadrant critical" data-quadrant="critical">
+                    <div class="quadrant-header">
+                        <h2>Critical <span class="risk-count" id="critical-count">(0)</span></h2>
+                        <p class="quadrant-description">High Probability & High Impact</p>
+                    </div>
+                    <ul class="risk-list" id="critical-list" aria-label="Critical risks"></ul>
+                    <p class="empty-state" id="critical-empty">No critical risks</p>
+                </div>
+
+                <!-- Quadrant 2: Monitor (Low Probability & High Impact) -->
+                <div class="quadrant monitor" data-quadrant="monitor">
+                    <div class="quadrant-header">
+                        <h2>Monitor <span class="risk-count" id="monitor-count">(0)</span></h2>
+                        <p class="quadrant-description">Low Probability & High Impact</p>
+                    </div>
+                    <ul class="risk-list" id="monitor-list" aria-label="Monitor risks"></ul>
+                    <p class="empty-state" id="monitor-empty">No risks to monitor</p>
+                </div>
+
+                <!-- Quadrant 3: Mitigate (High Probability & Low Impact) -->
+                <div class="quadrant mitigate" data-quadrant="mitigate">
+                    <div class="quadrant-header">
+                        <h2>Mitigate <span class="risk-count" id="mitigate-count">(0)</span></h2>
+                        <p class="quadrant-description">High Probability & Low Impact</p>
+                    </div>
+                    <ul class="risk-list" id="mitigate-list" aria-label="Mitigate risks"></ul>
+                    <p class="empty-state" id="mitigate-empty">No risks to mitigate</p>
+                </div>
+
+                <!-- Quadrant 4: Accept (Low Probability & Low Impact) -->
+                <div class="quadrant accept" data-quadrant="accept">
+                    <div class="quadrant-header">
+                        <h2>Accept <span class="risk-count" id="accept-count">(0)</span></h2>
+                        <p class="quadrant-description">Low Probability & Low Impact</p>
+                    </div>
+                    <ul class="risk-list" id="accept-list" aria-label="Accept risks"></ul>
+                    <p class="empty-state" id="accept-empty">No acceptable risks</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="help-modal" role="dialog" aria-labelledby="help-modal-title" aria-hidden="true">
+        <div class="help-modal-content">
+            <div class="help-modal-header">
+                <h2 id="help-modal-title">Risk Analysis Guide</h2>
+                <button class="help-modal-close" aria-label="Close help modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="help-modal-body">
+                <section class="help-section">
+                    <h3>About Risk Analysis</h3>
+                    <p>The Risk Analysis Matrix helps you assess and prioritize risks based on their <strong>probability</strong> (likelihood of occurring) and <strong>impact</strong> (severity of consequences). By plotting risks on a 2×2 matrix, you can identify which risks need immediate attention and which can be accepted.</p>
+                    <p>This tool is essential for project management, business planning, and decision-making where understanding and managing risk is critical.</p>
+                </section>
+
+                <section class="help-section">
+                    <h3>The Four Quadrants</h3>
+                    
+                    <div class="help-quadrant">
+                        <h4 style="color: #dc2626;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 0.5rem;">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            Critical (High Probability & High Impact)
+                        </h4>
+                        <p><strong>Description:</strong> Risks that are both likely to occur and would have severe consequences if they did.</p>
+                        <p><strong>Examples:</strong> Data breach, server failure, key personnel departure, budget overrun</p>
+                        <p><strong>Action:</strong> Immediate mitigation required. Develop contingency plans and allocate resources to prevent or minimize these risks.</p>
+                    </div>
+
+                    <div class="help-quadrant">
+                        <h4 style="color: #2563eb;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 0.5rem;">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            Monitor (Low Probability & High Impact)
+                        </h4>
+                        <p><strong>Description:</strong> Unlikely risks that would have serious impact if they occurred.</p>
+                        <p><strong>Examples:</strong> Natural disasters, regulatory changes, major market shifts, pandemic</p>
+                        <p><strong>Action:</strong> Monitor closely and prepare response plans. Keep early warning systems in place.</p>
+                    </div>
+
+                    <div class="help-quadrant">
+                        <h4 style="color: #f59e0b;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 0.5rem;">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                <polyline points="2 17 12 22 22 17"></polyline>
+                                <polyline points="2 12 12 17 22 12"></polyline>
+                            </svg>
+                            Mitigate (High Probability & Low Impact)
+                        </h4>
+                        <p><strong>Description:</strong> Likely risks with manageable consequences.</p>
+                        <p><strong>Examples:</strong> Minor delays, small budget variances, routine equipment maintenance, staff absences</p>
+                        <p><strong>Action:</strong> Implement preventive measures to reduce likelihood. Build in buffers and backup plans.</p>
+                    </div>
+
+                    <div class="help-quadrant">
+                        <h4 style="color: #10b981;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 0.5rem;">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Accept (Low Probability & Low Impact)
+                        </h4>
+                        <p><strong>Description:</strong> Unlikely risks with minimal impact.</p>
+                        <p><strong>Examples:</strong> Minor process inefficiencies, cosmetic issues, low-priority feature requests</p>
+                        <p><strong>Action:</strong> Accept and document. No immediate action needed, but keep aware.</p>
+                    </div>
+                </section>
+
+                <section class="help-section">
+                    <h3>How to Use</h3>
+                    <ol>
+                        <li><strong>Identify Risks:</strong> Enter a risk description in the input field</li>
+                        <li><strong>Rate Probability:</strong> Select likelihood from 1 (Very Low) to 5 (Very High)</li>
+                        <li><strong>Rate Impact:</strong> Select severity from 1 (Very Low) to 5 (Very High)</li>
+                        <li><strong>Add Risk:</strong> Press Enter to add the risk to the matrix</li>
+                        <li><strong>Review Placement:</strong> Risks automatically appear in the appropriate quadrant based on ratings</li>
+                        <li><strong>Adjust as Needed:</strong> Drag risks, use the dropdown, or focus a risk and use arrow keys to move it</li>
+                        <li><strong>Take Action:</strong> Focus on mitigating Critical risks first</li>
+                    </ol>
+                </section>
+
+                <section class="help-section">
+                    <h3>Rating Scale Guide</h3>
+                    <div class="rating-guide">
+                        <div>
+                            <h4>Probability (Likelihood)</h4>
+                            <ul>
+                                <li><strong>1 - Very Low:</strong> Rare (< 10% chance)</li>
+                                <li><strong>2 - Low:</strong> Unlikely (10-30% chance)</li>
+                                <li><strong>3 - Medium:</strong> Possible (30-50% chance)</li>
+                                <li><strong>4 - High:</strong> Likely (50-80% chance)</li>
+                                <li><strong>5 - Very High:</strong> Almost certain (> 80% chance)</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4>Impact (Severity)</h4>
+                            <ul>
+                                <li><strong>1 - Very Low:</strong> Negligible effect</li>
+                                <li><strong>2 - Low:</strong> Minor inconvenience</li>
+                                <li><strong>3 - Medium:</strong> Moderate effect on operations</li>
+                                <li><strong>4 - High:</strong> Significant disruption</li>
+                                <li><strong>5 - Very High:</strong> Catastrophic consequences</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="help-section">
+                    <h3>Quadrant Classification</h3>
+                    <p>Risks are assigned to quadrants based on <strong>threshold values</strong>, not the combined score. A value of 4 or higher is considered "High":</p>
+                    <table class="quadrant-table">
+                        <thead>
+                            <tr>
+                                <th>Quadrant</th>
+                                <th>Probability</th>
+                                <th>Impact</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="quadrant-critical">
+                                <td><strong>Critical</strong></td>
+                                <td>4-5 (High)</td>
+                                <td>4-5 (High)</td>
+                                <td>P=4, I=5 (Score: 20)</td>
+                            </tr>
+                            <tr class="quadrant-monitor">
+                                <td><strong>Monitor</strong></td>
+                                <td>1-3 (Low)</td>
+                                <td>4-5 (High)</td>
+                                <td>P=3, I=5 (Score: 15)</td>
+                            </tr>
+                            <tr class="quadrant-mitigate">
+                                <td><strong>Mitigate</strong></td>
+                                <td>4-5 (High)</td>
+                                <td>1-3 (Low)</td>
+                                <td>P=4, I=2 (Score: 8)</td>
+                            </tr>
+                            <tr class="quadrant-accept">
+                                <td><strong>Accept</strong></td>
+                                <td>1-3 (Low)</td>
+                                <td>1-3 (Low)</td>
+                                <td>P=3, I=3 (Score: 9)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="help-note"><strong>Note:</strong> The Risk Score (P x I) is shown for reference, but quadrant placement is determined by where each dimension falls relative to the threshold. For example, a risk with P=3, I=3 (Score: 9) goes to Accept because both values are below 4, while P=4, I=2 (Score: 8) goes to Mitigate because probability is high.</p>
+                </section>
+
+                <section class="help-section">
+                    <h3>Keyboard Shortcuts</h3>
+                    <div class="shortcuts-grid">
+                        <dl>
+                            <dt><kbd>Ctrl</kbd> + <kbd>I</kbd></dt>
+                            <dd>Focus risk input</dd>
+
+                            <dt><kbd>Ctrl</kbd> + <kbd>1-5</kbd></dt>
+                            <dd>Set probability level (when adding)</dd>
+
+                            <dt><kbd>Alt</kbd> + <kbd>1-5</kbd></dt>
+                            <dd>Set impact level (when adding)</dd>
+
+                            <dt><kbd>?</kbd></dt>
+                            <dd>Toggle this help dialog</dd>
+
+                            <dt><kbd>Esc</kbd></dt>
+                            <dd>Close help dialog</dd>
+                        </dl>
+                    </div>
+                    <h4>When a risk is focused:</h4>
+                    <div class="shortcuts-grid">
+                        <dl>
+                            <dt><kbd>&#8593;</kbd> / <kbd>&#8595;</kbd></dt>
+                            <dd>Increase / Decrease impact</dd>
+
+                            <dt><kbd>&#8594;</kbd> / <kbd>&#8592;</kbd></dt>
+                            <dd>Increase / Decrease probability</dd>
+                        </dl>
+                    </div>
+                    <p class="help-note">Arrow keys adjust P/I values directly. The quadrant updates automatically based on the new values.</p>
+                </section>
+
+                <section class="help-section">
+                    <h3>Best Practices</h3>
+                    <ul>
+                        <li><strong>Be Realistic:</strong> Use objective data when available, not just gut feelings</li>
+                        <li><strong>Involve Stakeholders:</strong> Get input from team members and experts</li>
+                        <li><strong>Review Regularly:</strong> Risk profiles change over time, reassess periodically</li>
+                        <li><strong>Document Mitigation:</strong> Record what actions you're taking for each risk</li>
+                        <li><strong>Focus Resources:</strong> Prioritize Critical risks, don't waste time on Accept risks</li>
+                        <li><strong>Learn from Reality:</strong> Update ratings when risks occur or are avoided</li>
+                    </ul>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Utility Scripts -->
+    <script src="../utils/logger.js"></script>
+    <script src="../utils/error-handler.js"></script>
+    <script src="../utils/theme-manager.js"></script>
+    <script src="../utils/toast-manager.js"></script>
+    <script src="../utils/storage-manager.js"></script>
+    <script src="../utils/import-export-manager.js"></script>
+    <script src="../utils/modal-manager.js"></script>
+    <script src="../utils/dom-helpers.js"></script>
+    <script src="../utils/character-counter.js"></script>
+    <script src="../utils/sample-data-manager.js"></script>
+    <script src="../utils/history-manager.js"></script>
+
+    <!-- Main Script -->
+    <script src="../scripts/risk-analysis-script.js"></script>
+</body>
+</html>

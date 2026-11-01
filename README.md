@@ -129,6 +129,7 @@ The tables below are generated from the ⌘⌥H cheatsheet with `make readme`, s
 | Hotkey | Action |
 |---|---|
 | Hyper+C | Show big clock (AClock) |
+| Hyper+D | Decision tools popup: show or hide (⌘1–⌘8 switch tools; Esc or click elsewhere closes) |
 | Hyper+G | HSearch (d/n/s/t + Tab: dates, notes, thesaurus, Brave tabs) |
 | Hyper+G → d | HSearch › Dates |
 | Hyper+G → n | HSearch › Notes |
@@ -216,6 +217,15 @@ The tables below are generated from the ⌘⌥H cheatsheet with `make readme`, s
   - Enter adds `- <timestamp> text` to the Uncategorised section of `~/markdown/running_notes/inbx.md`; set `file` and `section` in `init.lua`.
   - Clicking away keeps the text for next time.
 - **Pomodoro timer** (Cherry) is shown in the menu bar while running.
+- **Decision tools** (`Spoons/DecisionTools.spoon`): PMI, Eisenhower matrix,
+  paired comparison, decision matrix, Pareto, risk analysis, cost-benefit and
+  history, in one panel. They're a plain HTML/JS web app in the spoon's `web/`
+  folder, served by Hammerspoon on `http://localhost:47823` (only this Mac can
+  reach it).
+  - What you enter is kept in the panel's local storage, which belongs to that
+    port: change `spoon.DecisionTools.port` and the tools start empty.
+  - Export saves to `~/Downloads` (set `spoon.DecisionTools.downloadDir`).
+  - Import opens a file dialog.
 
 ## Automatic behaviour
 
@@ -248,6 +258,7 @@ TimeMachineProgress.
 Logic that doesn't need `hs.*` lives in plain Lua files inside the spoon
 or module (`Spoons/Cherry.spoon/days.lua`,
 `Spoons/TaskwarriorViews.spoon/ansi.lua`, `Spoons/QuickNote.spoon/insert.lua`,
+`Spoons/DecisionTools.spoon/files.lua`,
 `modules/popupLayout.lua`,
 `modules/fuzzy.lua`) and is tested
 with

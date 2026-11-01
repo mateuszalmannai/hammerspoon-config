@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cost-Benefit Analysis - Quantify costs and benefits to evaluate decisions">
+
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self';
+                   script-src 'self' 'unsafe-inline';
+                   style-src 'self' 'unsafe-inline';
+                   img-src 'self' data:;
+                   font-src 'self';
+                   connect-src 'self';
+                   frame-ancestors 'none';
+                   base-uri 'self';
+                   form-action 'self';">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+
+    <title>Cost-Benefit Analysis - Decision Making</title>
+    <link rel="stylesheet" href="../styles/styles.css">
+    <style>
+        /* Cost-Benefit specific styles */
+        .cost-benefit-tool {
+            max-width: 1200px;
+        }
+
+        /* Summary Cards */
+        .summary-section {
+            margin: 1.5rem 0;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .summary-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .summary-card.costs {
+            border-left: 4px solid #ef4444;
+        }
+
+        .summary-card.benefits {
+            border-left: 4px solid #22c55e;
+        }
+
+        .summary-card.net-positive {
+            border-left: 4px solid #22c55e;
+            background: rgba(34, 197, 94, 0.05);
+        }
+
+        .summary-card.net-negative {
+            border-left: 4px solid #ef4444;
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .summary-card.ratio-good {
+            border-left: 4px solid #22c55e;
+        }
+
+        .summary-card.ratio-bad {
+            border-left: 4px solid #ef4444;
+        }
+
+        .summary-card.ratio-neutral {
+            border-left: 4px solid #f59e0b;
+        }
+
+        .summary-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .summary-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .summary-value.positive {
+            color: #22c55e;
+        }
+
+        .summary-value.negative {
+            color: #ef4444;
+        }
+
+        .summary-sublabel {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Input form styling */
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .form-group.description {
+            flex: 3;
+            min-width: 200px;
+        }
+
+        .form-group.amount {
+            flex: 1.5;
+            min-width: 140px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .type-toggle {
+            display: flex;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .type-toggle button {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: none;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .type-toggle button:first-child {
+            border-right: 1px solid var(--border-color);
+        }
+
+        .type-toggle button.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .type-toggle button.cost.active {
+            background: #ef4444;
+        }
+
+        .type-toggle button.benefit.active {
+            background: #22c55e;
+        }
+
+        /* Items display */
+        .items-section {
+            margin-top: 2rem;
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .items-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .items-column {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .items-column.costs {
+            border-top: 4px solid #ef4444;
+        }
+
+        .items-column.benefits {
+            border-top: 4px solid #22c55e;
+        }
+
+        .column-header {
+            padding: 1rem 1.25rem;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .column-header h2 {
+            margin: 0;
+            font-size: 1.125rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .column-header .count {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-weight: normal;
+        }
+
+        .column-total {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .column-total.cost {
+            color: #ef4444;
+        }
+
+        .column-total.benefit {
+            color: #22c55e;
+        }
+
+        .items-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .item {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .item:last-child {
+            border-bottom: none;
+        }
+
+        .item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-description {
+            font-weight: 500;
+            color: var(--text-primary);
+            word-break: break-word;
+        }
+
+        .item-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .item-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.125rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .item-badge.one-time {
+            background: rgba(99, 102, 241, 0.1);
+            color: #6366f1;
+        }
+
+        .item-badge.recurring {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .item-amount {
+            font-weight: 600;
+            font-size: 1rem;
+            white-space: nowrap;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.25rem;
+        }
+
+        .item-amount.cost {
+            color: #ef4444;
+        }
+
+        .item-amount.benefit {
+            color: #22c55e;
+        }
+
+        .item-annualized {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: normal;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .empty-state {
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        /* Visual comparison bar */
+        .comparison-section {
+            margin: 2rem 0;
+        }
+
+        .comparison-bar-container {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            height: 32px;
+            overflow: hidden;
+            display: flex;
+            border: 1px solid var(--border-color);
+        }
+
+        .comparison-bar {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            transition: width 0.3s ease;
+            min-width: 0;
+        }
+
+        .comparison-bar.costs {
+            background: linear-gradient(90deg, #dc2626, #ef4444);
+        }
+
+        .comparison-bar.benefits {
+            background: linear-gradient(90deg, #16a34a, #22c55e);
+        }
+
+        .comparison-legend {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Quick tips and help hint styling */
+        .input-hint {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .input-hint span:first-child {
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        /* Submit button */
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-input" class="skip-link">Skip to main input</a>
+    <main class="container cost-benefit-tool">
+        <header class="app-header">
+            <div class="header-content">
+                <div>
+                    <a href="../index.html" class="back-link" aria-label="Back to decision tools">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        <span>All Tools</span>
+                    </a>
+                    <h1>Cost-Benefit Analysis</h1>
+                    <p class="subtitle">Quantify and Compare Costs vs Benefits</p>
+                </div>
+                <div class="header-buttons">
+                    <button id="help-toggle" class="help-toggle" aria-label="Show keyboard shortcuts">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                    </button>
+                    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+                    <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Data Management Section -->
+        <section class="data-management-section" aria-label="Data management controls">
+            <div class="data-management-buttons">
+                <button type="button" id="clear-all" class="btn-text">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    Clear All
+                </button>
+                <button type="button" id="load-sample-btn" class="btn-text" aria-label="Load sample data">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    Load Sample
+                </button>
+                <input type="file" id="import-file" accept=".json,.csv,application/json,text/csv" style="display: none;" aria-label="Import data file">
+                <button type="button" id="import-btn" class="btn-text" aria-label="Import data from file">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                    </svg>
+                    Import
+                </button>
+                <select id="export-select" class="category-transfer" aria-label="Export data">
+                    <option value="">Export...</option>
+                    <option value="json">Export as JSON</option>
+                    <option value="csv">Export as CSV</option>
+                </select>
+                <button type="button" id="save-history-btn" class="btn-text" aria-label="Save to history">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    History
+                </button>
+                <span id="storage-indicator-container"></span>
+            </div>
+        </section>
+
+        <!-- Input Form -->
+        <section class="task-input-section" aria-label="Add new item">
+            <form id="item-form">
+                <p class="input-hint">
+                    <span>Quick tips: </span>
+                    <span>Enter to add | Tab to switch type | ? for help</span>
+                </p>
+                <div class="form-row">
+                    <div class="form-group description">
+                        <label for="main-input">Description</label>
+                        <div class="input-with-counter">
+                            <input
+                                type="text"
+                                id="main-input"
+                                placeholder="Enter cost or benefit description..."
+                                required
+                                aria-required="true"
+                                autocomplete="off"
+                                maxlength="200"
+                                autofocus>
+                            <span class="char-counter" id="char-counter" aria-live="polite">
+                                <span id="char-count">0</span>/200
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group amount">
+                        <label for="amount-input">Amount (€)</label>
+                        <input
+                            type="number"
+                            id="amount-input"
+                            placeholder="0.00"
+                            min="0"
+                            step="0.01"
+                            required
+                            aria-required="true">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Type</label>
+                        <div class="type-toggle" role="group" aria-label="Select type">
+                            <button type="button" class="cost active" data-type="cost">Cost</button>
+                            <button type="button" class="benefit" data-type="benefit">Benefit</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="category-select">Category</label>
+                        <select id="category-select">
+                            <option value="one-time">One-time</option>
+                            <option value="recurring">Recurring</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="frequency-group" style="display: none;">
+                        <label for="frequency-select">Frequency</label>
+                        <select id="frequency-select">
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: flex-end;">
+                        <button type="submit" class="btn-primary" id="add-item-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Add Item
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <!-- Summary Cards -->
+        <section class="summary-section" aria-label="Analysis summary">
+            <div id="summary-cards" class="summary-cards">
+                <!-- Rendered by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Visual Comparison -->
+        <section class="comparison-section" aria-label="Visual comparison">
+            <div id="comparison-bar-container" class="comparison-bar-container">
+                <!-- Rendered by JavaScript -->
+            </div>
+            <div class="comparison-legend">
+                <span>Costs</span>
+                <span>Benefits</span>
+            </div>
+        </section>
+
+        <!-- Items Grid -->
+        <section class="items-section" aria-label="Items list">
+            <div class="items-grid">
+                <!-- Costs Column -->
+                <div class="items-column costs">
+                    <div class="column-header">
+                        <h2>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Costs <span id="costs-count" class="count">(0)</span>
+                        </h2>
+                        <span id="costs-total" class="column-total cost">€0</span>
+                    </div>
+                    <ul id="costs-list" class="items-list" aria-label="List of costs"></ul>
+                    <p id="costs-empty" class="empty-state">No costs added yet</p>
+                </div>
+
+                <!-- Benefits Column -->
+                <div class="items-column benefits">
+                    <div class="column-header">
+                        <h2>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Benefits <span id="benefits-count" class="count">(0)</span>
+                        </h2>
+                        <span id="benefits-total" class="column-total benefit">€0</span>
+                    </div>
+                    <ul id="benefits-list" class="items-list" aria-label="List of benefits"></ul>
+                    <p id="benefits-empty" class="empty-state">No benefits added yet</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="help-modal" role="dialog" aria-labelledby="help-modal-title" aria-hidden="true">
+        <div class="help-modal-content">
+            <div class="help-modal-header">
+                <h2 id="help-modal-title">Cost-Benefit Analysis Guide</h2>
+                <button class="help-modal-close" aria-label="Close help modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="help-modal-body">
+                <section class="help-section">
+                    <h3>About Cost-Benefit Analysis</h3>
+                    <p>Cost-Benefit Analysis (CBA) is a systematic approach to evaluating decisions by comparing total expected costs against total expected benefits. It helps you determine whether an investment, project, or decision is financially worthwhile.</p>
+                    <p>This tool quantifies both one-time and recurring costs and benefits, automatically annualizing recurring items to provide a clear year-over-year comparison.</p>
+                </section>
+
+                <section class="help-section">
+                    <h3>Key Metrics</h3>
+
+                    <div class="help-quadrant">
+                        <h4>Total Costs (Annualized)</h4>
+                        <p>The sum of all costs. One-time costs are shown as-is, while recurring costs are annualized (monthly x 12).</p>
+                    </div>
+
+                    <div class="help-quadrant">
+                        <h4>Total Benefits (Annualized)</h4>
+                        <p>The sum of all benefits. One-time benefits are shown as-is, while recurring benefits are annualized (monthly x 12).</p>
+                    </div>
+
+                    <div class="help-quadrant">
+                        <h4>Net Benefit</h4>
+                        <p><strong>Formula:</strong> Total Benefits - Total Costs</p>
+                        <p>A positive net benefit indicates the decision creates value; a negative value suggests costs outweigh benefits.</p>
+                    </div>
+
+                    <div class="help-quadrant">
+                        <h4>Benefit-Cost Ratio (BCR)</h4>
+                        <p><strong>Formula:</strong> Total Benefits / Total Costs</p>
+                        <p>BCR > 1: Benefits exceed costs (favorable)</p>
+                        <p>BCR = 1: Benefits equal costs (break-even)</p>
+                        <p>BCR < 1: Costs exceed benefits (unfavorable)</p>
+                    </div>
+
+                    <div class="help-quadrant">
+                        <h4>Return on Investment (ROI)</h4>
+                        <p><strong>Formula:</strong> (Net Benefit / Total Costs) x 100%</p>
+                        <p>Positive ROI: Investment gains value</p>
+                        <p>Negative ROI: Investment loses value</p>
+                    </div>
+                </section>
+
+                <section class="help-section">
+                    <h3>How to Use</h3>
+                    <ol>
+                        <li><strong>Add Items:</strong> Enter a description, amount, and select whether it's a cost or benefit</li>
+                        <li><strong>Set Category:</strong> Choose One-time or Recurring</li>
+                        <li><strong>Set Frequency:</strong> For recurring items, choose Monthly or Yearly</li>
+                        <li><strong>Review Metrics:</strong> The summary cards update automatically</li>
+                        <li><strong>Make Decision:</strong> Use BCR and ROI to evaluate the decision</li>
+                    </ol>
+                </section>
+
+                <section class="help-section">
+                    <h3>Keyboard Shortcuts</h3>
+                    <div class="shortcuts-grid">
+                        <dl>
+                            <dt><kbd>Ctrl</kbd> + <kbd>I</kbd></dt>
+                            <dd>Focus description input</dd>
+
+                            <dt><kbd>Tab</kbd></dt>
+                            <dd>Toggle between Cost and Benefit</dd>
+
+                            <dt><kbd>Enter</kbd></dt>
+                            <dd>Add item</dd>
+
+                            <dt><kbd>?</kbd></dt>
+                            <dd>Toggle this help dialog</dd>
+
+                            <dt><kbd>Esc</kbd></dt>
+                            <dd>Close help dialog</dd>
+                        </dl>
+                    </div>
+                </section>
+
+                <section class="help-section">
+                    <h3>Best Practices</h3>
+                    <ul>
+                        <li><strong>Be Comprehensive:</strong> Include all relevant costs and benefits, even if estimates</li>
+                        <li><strong>Be Conservative:</strong> When uncertain, overestimate costs and underestimate benefits</li>
+                        <li><strong>Consider Intangibles:</strong> Try to quantify non-monetary factors like time savings or risk reduction</li>
+                        <li><strong>Use Consistent Timeframes:</strong> Compare costs and benefits over the same period</li>
+                        <li><strong>Review Assumptions:</strong> Document why you assigned specific values</li>
+                    </ul>
+                </section>
+
+                <section class="help-section">
+                    <h3>Common Use Cases</h3>
+                    <ul>
+                        <li>Software or equipment purchases</li>
+                        <li>Hiring decisions</li>
+                        <li>Process improvement initiatives</li>
+                        <li>Make vs. buy decisions</li>
+                        <li>Project prioritization</li>
+                        <li>Vendor comparisons</li>
+                    </ul>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Utility Scripts -->
+    <script src="../utils/app-config.js"></script>
+    <script src="../utils/logger.js"></script>
+    <script src="../utils/error-handler.js"></script>
+    <script src="../utils/theme-manager.js"></script>
+    <script src="../utils/toast-manager.js"></script>
+    <script src="../utils/storage-manager.js"></script>
+    <script src="../utils/import-export-manager.js"></script>
+    <script src="../utils/modal-manager.js"></script>
+    <script src="../utils/dom-helpers.js"></script>
+    <script src="../utils/character-counter.js"></script>
+    <script src="../utils/sample-data-manager.js"></script>
+    <script src="../utils/history-manager.js"></script>
+
+    <!-- Main Script -->
+    <script src="../scripts/cost-benefit-script.js"></script>
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!doctype html>
+<!--
+  DecisionTools panel: a bar to switch between the tools, and the current tool
+  in an iframe. Served by the spoon from http://localhost:<port>/, so the tools
+  share one origin (and one localStorage) with this page, which lets it reach
+  into the iframe to bridge what a webview can't do itself:
+    - file downloads (export) are sent to Lua, which writes them to ~/Downloads
+    - file pickers (import) are opened by Lua, which sends the file back
+  Esc closes the panel unless a tool's own dialog is open; ⌘1–⌘8 switch tools.
+-->
+<html><head><meta charset="utf-8"><title>Decision tools</title><style>
+  :root { --bg: rgba(250, 250, 252, 0.97); --bar: rgba(0, 0, 0, 0.04); --line: rgba(0, 0, 0, 0.1);
+    --text: #222; --dim: rgba(0, 0, 0, 0.45); --sel: rgba(99, 102, 241, 0.16); --selText: #4f46e5; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: rgba(24, 24, 27, 0.97); --bar: rgba(255, 255, 255, 0.04); --line: rgba(255, 255, 255, 0.12);
+      --text: #eee; --dim: rgba(255, 255, 255, 0.45); --sel: rgba(129, 140, 248, 0.25); --selText: #c7d2fe; }
+  }
+  html, body { margin: 0; height: 100%; background: transparent; overflow: hidden;
+    font: 13px -apple-system, BlinkMacSystemFont, sans-serif; color: var(--text); }
+  #panel { box-sizing: border-box; height: 100%; display: flex; flex-direction: column;
+    background: var(--bg); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  #bar { flex: none; display: flex; align-items: center; gap: 2px; padding: 8px 10px;
+    background: var(--bar); border-bottom: 1px solid var(--line);
+    -webkit-user-select: none; cursor: default; }
+  #tabs { flex: 1; display: flex; gap: 2px; overflow-x: auto; }
+  #tabs::-webkit-scrollbar { display: none; }
+  .tab { flex: none; display: flex; align-items: center; gap: 6px; padding: 5px 10px;
+    border: none; border-radius: 7px; background: none; color: inherit; font: inherit; cursor: default; }
+  .tab:hover { background: var(--bar); }
+  .tab.sel { background: var(--sel); color: var(--selText); font-weight: 600; }
+  .key { font-size: 11px; color: var(--dim); font-weight: normal; }
+  #close { flex: none; width: 24px; height: 24px; border: none; border-radius: 6px; background: none;
+    color: var(--dim); font-size: 16px; line-height: 1; cursor: default; }
+  #close:hover { background: var(--bar); color: var(--text); }
+  iframe { flex: 1; width: 100%; border: none; background: transparent; }
+</style></head><body>
+<div id="panel">
+  <div id="bar"><div id="tabs" role="tablist"></div>
+    <button id="close" title="Close (Esc)" aria-label="Close">×</button></div>
+  <iframe id="tool" title="Decision tool"></iframe>
+</div>
+<script>
+  const TOOLS = [
+    { file: 'pmi-tool.html', name: 'PMI' },
+    { file: 'eisenhower-matrix-tool.html', name: 'Eisenhower' },
+    { file: 'paired-comparison-tool.html', name: 'Paired comparison' },
+    { file: 'decision-matrix-tool.html', name: 'Decision matrix' },
+    { file: 'pareto-tool.html', name: 'Pareto' },
+    { file: 'risk-analysis-tool.html', name: 'Risk analysis' },
+    { file: 'cost-benefit-tool.html', name: 'Cost-benefit' },
+    { file: 'history-tool.html', name: 'History' },
+  ];
+  const LAST_KEY = 'decisionTools.lastTool';
+  const frame = document.getElementById('tool');
+  const tabs = document.getElementById('tabs');
+  const post = m => webkit.messageHandlers.decisiontools.postMessage(m);
+
+  function storageGet(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+  function storageSet(key, v) { try { localStorage.setItem(key, v); } catch (e) {} }
+
+  TOOLS.forEach((t, i) => {
+    const b = document.createElement('button');
+    b.className = 'tab'; b.setAttribute('role', 'tab'); b.dataset.file = t.file;
+    b.append(t.name);
+    const k = document.createElement('span'); k.className = 'key'; k.textContent = '⌘' + (i + 1);
+    b.append(k);
+    b.onclick = () => openTool(i);
+    tabs.append(b);
+  });
+
+  function openTool(i) {
+    const t = TOOLS[i];
+    if (t) frame.src = 'tools/' + t.file;
+  }
+
+  function markCurrent(file) {
+    for (const b of tabs.children) {
+      const on = b.dataset.file === file;
+      b.classList.toggle('sel', on);
+      b.setAttribute('aria-selected', on);
+      if (on) b.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+  }
+
+  // A tool's own dialog (confirm, prompt, help, …) is open: Esc is theirs then
+  function dialogOpen(doc) {
+    const candidates = doc.querySelectorAll('[role="dialog"], [role="alertdialog"], [class*="modal"], dialog[open]');
+    for (const el of candidates) {
+      if (el.getAttribute('aria-hidden') === 'true' || !el.getClientRects().length) continue;
+      const style = doc.defaultView.getComputedStyle(el);
+      if (style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0') return true;
+    }
+    return false;
+  }
+
+  // Key handling for this page and the tool page alike
+  function watchKeys(win) {
+    let dialogWasOpen = false;
+    win.addEventListener('keydown', e => {
+      // checked before the tool sees the key, since Esc may close its dialog
+      dialogWasOpen = e.key === 'Escape' && dialogOpen(frame.contentDocument || document);
+      if (e.metaKey && !e.ctrlKey && !e.altKey && /^[1-9]$/.test(e.key)) {
+        openTool(Number(e.key) - 1);
+        e.preventDefault(); e.stopImmediatePropagation();
+      }
+    }, true);
+    win.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && !e.defaultPrevented && !dialogWasOpen) post({ type: 'close' });
+    });
+  }
+  watchKeys(window);
+
+  // --- bridge into the tool page, redone each time it loads ----------------
+  let pendingInput = null;   // the file input waiting for Lua's file picker
+
+  function bridge(win) {
+    const doc = win.document;
+
+    // the tools' "back to all tools" links lead to the web app's start page,
+    // which the panel replaces
+    const style = doc.createElement('style');
+    style.textContent = '.back-link { display: none !important; }';
+    doc.head.append(style);
+
+    // remember the Blob behind each object URL, so a download can be read back
+    const blobs = new Map();
+    const createObjectURL = win.URL.createObjectURL;
+    win.URL.createObjectURL = function (obj) {
+      const url = createObjectURL.call(this, obj);
+      blobs.set(url, obj);
+      return url;
+    };
+    const revokeObjectURL = win.URL.revokeObjectURL;
+    win.URL.revokeObjectURL = function (url) {
+      // read lazily, so keep the Blob until the save message is sent
+      setTimeout(() => blobs.delete(url), 5000);
+      return revokeObjectURL.call(this, url);
+    };
+
+    // <a download> click: send the file to Lua instead
+    const anchorClick = win.HTMLAnchorElement.prototype.click;
+    win.HTMLAnchorElement.prototype.click = function () {
+      if (!this.hasAttribute('download')) return anchorClick.call(this);
+      const name = this.getAttribute('download') || 'export';
+      const blob = blobs.get(this.href);
+      const read = blob ? blob.text() : fetch(this.href).then(r => r.text());
+      read.then(text => post({ type: 'save', name, text }))
+          .catch(err => post({ type: 'error', message: 'Export failed: ' + err }));
+    };
+
+    // <input type=file> click: ask Lua for a file instead
+    const inputClick = win.HTMLInputElement.prototype.click;
+    win.HTMLInputElement.prototype.click = function () {
+      if (this.type !== 'file') return inputClick.call(this);
+      pendingInput = this;
+      post({ type: 'open', accept: this.accept || '' });
+    };
+    // …and the same for a click on the input itself, should a tool show one
+    doc.addEventListener('click', e => {
+      const input = e.target.closest && e.target.closest('input[type=file]');
+      if (input) { e.preventDefault(); input.click(); }
+    }, true);
+
+    watchKeys(win);
+  }
+
+  // Called by Lua with the file the user picked
+  function deliverFile(data) {
+    const input = pendingInput; pendingInput = null;
+    if (!input || !input.isConnected) return;
+    const win = input.ownerDocument.defaultView;
+    const file = new win.File([data.text], data.name, { type: data.type || '' });
+    const transfer = new win.DataTransfer();
+    transfer.items.add(file);
+    input.files = transfer.files;
+    input.dispatchEvent(new win.Event('change', { bubbles: true }));
+  }
+
+  frame.addEventListener('load', () => {
+    let win;
+    try { win = frame.contentWindow; win.document; } catch (e) { return; }
+    const file = win.location.pathname.split('/').pop();
+    markCurrent(file);
+    if (TOOLS.some(t => t.file === file)) storageSet(LAST_KEY, file);
+    bridge(win);
+  });
+
+  // Called by Lua each time the panel is shown
+  function focusTool() {
+    try { frame.contentWindow.focus(); } catch (e) { window.focus(); }
+  }
+
+  document.getElementById('close').onclick = () => post({ type: 'close' });
+
+  const last = TOOLS.findIndex(t => t.file === storageGet(LAST_KEY));
+  openTool(last >= 0 ? last : 0);
+</script></body></html>

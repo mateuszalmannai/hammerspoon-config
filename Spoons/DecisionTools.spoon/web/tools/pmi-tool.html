@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A PMI (Plus, Minus, Interesting) tool to help you make better decisions">
+
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self';
+                   script-src 'self' 'unsafe-inline';
+                   style-src 'self' 'unsafe-inline';
+                   img-src 'self' data:;
+                   font-src 'self';
+                   connect-src 'self';
+                   frame-ancestors 'none';
+                   base-uri 'self';
+                   form-action 'self';">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+
+    <title>PMI Tool - Decision Making</title>
+    <link rel="stylesheet" href="../styles/styles.css">
+</head>
+<body>
+    <a href="#main-input" class="skip-link">Skip to main input</a>
+    <main class="container pmi-tool">
+        <header class="app-header">
+            <div class="header-content">
+                <div>
+                    <a href="../index.html" class="back-link" aria-label="Back to decision tools">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        <span>All Tools</span>
+                    </a>
+                    <h1>PMI Tool</h1>
+                    <p class="subtitle">Plus, Minus, Interesting</p>
+                </div>
+                <div class="header-buttons">
+                    <button id="help-toggle" class="help-toggle" aria-label="Show keyboard shortcuts">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                    </button>
+                    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+                    <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Data Management Section -->
+        <section class="data-management-section" aria-label="Data management controls">
+            <div class="data-management-buttons">
+                <button type="button" id="clear-all" class="btn-text">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    Clear All
+                </button>
+                <button type="button" id="load-sample-btn" class="btn-text" aria-label="Load sample data">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    Load Sample
+                </button>
+                <input type="file" id="import-file" accept=".json,.csv,application/json,text/csv" style="display: none;" aria-label="Import data file">
+                <button id="import-btn" class="btn-text" aria-label="Import data from file">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                    </svg>
+                    Import
+                </button>
+                <select id="export-select" class="category-transfer" aria-label="Export data">
+                    <option value="">Export...</option>
+                    <option value="json">Export as JSON</option>
+                    <option value="csv">Export as CSV</option>
+                </select>
+                <button type="button" id="save-history-btn" class="btn-text" aria-label="Save to history">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    History
+                </button>
+                <span id="storage-indicator-container"></span>
+            </div>
+        </section>
+
+        <section class="task-input-section" aria-label="Add new item">
+            <form id="task-form">
+                <div class="input-group">
+                    <label for="task-input" class="visually-hidden">Item description</label>
+                    <p class="input-hint">
+                        <span>Quick tips: </span>
+                        <span>Enter to add • Ctrl+P (Plus) • Ctrl+M (Minus) • Ctrl+I (Interesting) • Ctrl+1-5 (Weight)</span>
+                    </p>
+                    <div class="input-with-counter">
+                        <input 
+                            type="text" 
+                            id="main-input"
+                            placeholder="Type an item to evaluate..." 
+                            required
+                            aria-required="true"
+                            autocomplete="off"
+                            maxlength="500"
+                            autofocus>
+                        <span class="char-counter" id="char-counter" aria-live="polite">
+                            <span id="char-count">0</span>/500
+                        </span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                        <div class="weight-selector">
+                            <label for="weight-input" class="weight-label">Importance:</label>
+                            <div class="weight-buttons" role="group" aria-label="Select item importance">
+                                <button type="button" class="weight-btn" data-weight="1" aria-label="Low importance">1</button>
+                                <button type="button" class="weight-btn" data-weight="2" aria-label="Below average importance">2</button>
+                                <button type="button" class="weight-btn active" data-weight="3" aria-label="Medium importance">3</button>
+                                <button type="button" class="weight-btn" data-weight="4" aria-label="High importance">4</button>
+                                <button type="button" class="weight-btn" data-weight="5" aria-label="Critical importance">5</button>
+                            </div>
+                            <input type="hidden" id="weight-input" value="3">
+                        </div>
+                    </div>
+                </div>
+                <div class="mobile-category-buttons">
+                    <button type="button" class="btn-category btn-plus" data-type="pro" aria-label="Add to Plus">+ Plus</button>
+                    <button type="button" class="btn-category btn-minus" data-type="con" aria-label="Add to Minus">− Minus</button>
+                    <button type="button" class="btn-category btn-interesting" data-type="interesting" aria-label="Add to Interesting">? Interesting</button>
+                </div>
+            </form>
+        </section>
+
+        <div class="comparison-sections">
+            <section class="section pros-section" aria-label="Plus">
+                <div class="section-header">
+                    <h2>Plus <span id="pros-count" class="section-count">(0)</span></h2>
+                    <button id="clear-pros" class="btn-clear" aria-label="Clear all plus items" disabled>×</button>
+                </div>
+                <ul id="pros-list" class="item-list" role="list">
+                    <li class="empty-state-message">
+                        <div class="empty-icon">+</div>
+                        <p>Positive aspects and benefits</p>
+                        <small>Right-click items to move here</small>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="section cons-section" aria-label="Cons">
+                <div class="section-header">
+                    <h2>Minus <span id="cons-count" class="section-count">(0)</span></h2>
+                    <button id="clear-cons" class="btn-clear" aria-label="Clear all cons" disabled>×</button>
+                </div>
+                <ul id="cons-list" class="item-list" role="list">
+                    <li class="empty-state-message">
+                        <div class="empty-icon">−</div>
+                        <p>Negative aspects and drawbacks</p>
+                        <small>Right-click items to move here</small>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="section interesting-section" aria-label="Interesting">
+                <div class="section-header">
+                    <h2>Interesting <span id="interesting-count" class="section-count">(0)</span></h2>
+                    <button id="clear-interesting" class="btn-clear" aria-label="Clear all interesting items" disabled>×</button>
+                </div>
+                <ul id="interesting-list" class="item-list" role="list">
+                    <li class="empty-state-message">
+                        <div class="empty-icon">?</div>
+                        <p>Neither clearly positive nor negative</p>
+                        <small>Right-click items to move here</small>
+                    </li>
+                </ul>
+            </section>
+        </div>
+
+        <section class="section uncategorized-section" aria-label="Uncategorized items">
+            <div class="section-header">
+                <h2>Uncategorized <span id="uncategorized-count" class="section-count">(0)</span></h2>
+                <button id="clear-uncategorized" class="btn-clear" aria-label="Clear all uncategorized items" disabled>×</button>
+            </div>
+            <ul id="uncategorized-list" class="item-list" role="list">
+                <li class="empty-state-message">
+                    <div class="empty-icon">•</div>
+                    <p>Items waiting to be categorized</p>
+                    <small>Start typing to add new items</small>
+                </li>
+            </ul>
+        </section>
+
+        <footer class="task-footer">
+            <div class="stats-container">
+                <div class="stat-item">
+                    <span class="stat-label">Uncategorized</span>
+                    <div class="stat-bar-container">
+                        <div class="stat-bar stat-bar-uncategorized" data-type="uncategorized"></div>
+                    </div>
+                    <span class="stat-count" id="stat-uncategorized">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Plus</span>
+                    <div class="stat-bar-container">
+                        <div class="stat-bar stat-bar-plus" data-type="pro"></div>
+                    </div>
+                    <span class="stat-count" id="stat-plus">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Minus</span>
+                    <div class="stat-bar-container">
+                        <div class="stat-bar stat-bar-minus" data-type="con"></div>
+                    </div>
+                    <span class="stat-count" id="stat-minus">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Interesting</span>
+                    <div class="stat-bar-container">
+                        <div class="stat-bar stat-bar-interesting" data-type="interesting"></div>
+                    </div>
+                    <span class="stat-count" id="stat-interesting">0</span>
+                </div>
+            </div>
+            <div class="decision-summary" id="decision-summary">
+                <div class="decision-indicator" id="decision-indicator">
+                    <span class="decision-icon" id="decision-icon">⚖️</span>
+                    <span class="decision-text" id="decision-text">Add items to see decision</span>
+                </div>
+                <div class="decision-score" id="decision-score"></div>
+            </div>
+        </footer>
+    </main>
+
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Keyboard Shortcuts Help Modal -->
+    <div id="help-modal" class="help-modal" role="dialog" aria-labelledby="help-modal-title" aria-hidden="true">
+        <div class="help-modal-content">
+            <div class="help-modal-header">
+                <h2 id="help-modal-title">PMI Analysis Guide</h2>
+                <button id="help-modal-close" class="help-modal-close" aria-label="Close keyboard shortcuts">×</button>
+            </div>
+            <div class="help-modal-body">
+                <section class="help-section">
+                    <h3>About PMI Analysis</h3>
+                    <p>PMI (Plus, Minus, Interesting) is a decision-making and brainstorming technique developed by Edward de Bono. It helps you evaluate ideas by systematically considering their positive aspects, negative aspects, and interesting implications.</p>
+                    <p>Unlike simple pros/cons lists, PMI includes an "Interesting" category for aspects that are neither clearly positive nor negative but worth considering.</p>
+                </section>
+
+                <section class="help-section">
+                    <h3>How to Use</h3>
+                    <ol>
+                        <li><strong>Add Items:</strong> Type your thoughts in the input field and press Enter to add to Uncategorized</li>
+                        <li><strong>Categorize:</strong> Drag items to Plus (positive), Minus (negative), or Interesting sections</li>
+                        <li><strong>Weight Items:</strong> Click the weight badge (1-5) to indicate importance</li>
+                        <li><strong>Review:</strong> Check the summary bar at the bottom to see the weighted balance</li>
+                        <li><strong>Decide:</strong> Use the analysis to guide your decision</li>
+                    </ol>
+                </section>
+
+                <section class="help-section">
+                    <h3>Keyboard Shortcuts</h3>
+                    <div class="shortcuts-grid">
+                        <h4>Adding Items</h4>
+                        <dl class="help-shortcuts">
+                            <div class="help-shortcut">
+                                <dt><kbd>Enter</kbd></dt>
+                                <dd>Add to Uncategorized</dd>
+                            </div>
+                            <div class="help-shortcut">
+                                <dt><kbd>⌘</kbd> + <kbd>P</kbd></dt>
+                                <dd>Add directly to Plus</dd>
+                            </div>
+                            <div class="help-shortcut">
+                                <dt><kbd>⌘</kbd> + <kbd>M</kbd></dt>
+                                <dd>Add directly to Minus</dd>
+                            </div>
+                            <div class="help-shortcut">
+                                <dt><kbd>⌘</kbd> + <kbd>I</kbd></dt>
+                                <dd>Add directly to Interesting</dd>
+                            </div>
+                        </dl>
+
+                        <h4>Setting Weight</h4>
+                        <dl class="help-shortcuts">
+                            <div class="help-shortcut">
+                                <dt><kbd>⌘</kbd> + <kbd>1-5</kbd></dt>
+                                <dd>Set importance level (1=Low, 5=High)</dd>
+                            </div>
+                            <div class="help-shortcut">
+                                <dt><kbd>Enter</kbd> / <kbd>Space</kbd></dt>
+                                <dd>Cycle weight when focused on badge</dd>
+                            </div>
+                        </dl>
+
+                        <h4>Navigation</h4>
+                        <dl class="help-shortcuts">
+                            <div class="help-shortcut">
+                                <dt><kbd>I</kbd></dt>
+                                <dd>Focus Input field</dd>
+                            </div>
+                            <div class="help-shortcut">
+                                <dt><kbd>P</kbd></dt>
+                                <dd>Navigate to Plus section</dd>
+                            </div>
+                            <div class="help-shortcut">
+                                <dt><kbd>M</kbd></dt>
+                                <dd>Navigate to Minus section</dd>
+                            </div>
+                            <div class="help-shortcut">
+                                <dt><kbd>N</kbd></dt>
+                                <dd>Navigate to Interesting section</dd>
+                            </div>
+                            <div class="help-shortcut">
+                                <dt><kbd>U</kbd></dt>
+                                <dd>Navigate to Uncategorized section</dd>
+                            </div>
+                            <div class="help-shortcut">
+                                <dt><kbd>?</kbd></dt>
+                                <dd>Toggle this help</dd>
+                            </div>
+                            <div class="help-shortcut">
+                                <dt><kbd>Esc</kbd></dt>
+                                <dd>Close this help</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </section>
+
+                <section class="help-section">
+                    <h3>Best Practices</h3>
+                    <ul>
+                        <li><strong>Be Thorough:</strong> List everything that comes to mind before evaluating</li>
+                        <li><strong>Use "Interesting" Wisely:</strong> This category is for factors that could go either way or lead to new insights</li>
+                        <li><strong>Weight Carefully:</strong> Higher weights (4-5) should be reserved for truly significant factors</li>
+                        <li><strong>Consider Context:</strong> The same factor might be Plus in one situation and Minus in another</li>
+                        <li><strong>Review Periodically:</strong> Revisit your analysis as circumstances change</li>
+                        <li><strong>Export for Reference:</strong> Save your analysis for documentation or future review</li>
+                    </ul>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Utility scripts -->
+    <script src="../utils/app-config.js"></script>
+    <script src="../utils/logger.js"></script>
+    <script src="../utils/error-handler.js"></script>
+    <script src="../utils/theme-manager.js"></script>
+    <script src="../utils/toast-manager.js"></script>
+    <script src="../utils/storage-manager.js"></script>
+    <script src="../utils/character-counter.js"></script>
+    <script src="../utils/modal-manager.js"></script>
+    <script src="../utils/dom-helpers.js"></script>
+    <script src="../utils/import-export-manager.js"></script>
+    <script src="../utils/sample-data-manager.js"></script>
+    <script src="../utils/history-manager.js"></script>
+
+    <!-- Tool script -->
+    <script src="../scripts/pmi-script.js"></script>
+</body>
+</html>

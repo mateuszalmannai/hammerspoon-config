@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Pareto Analysis tool - Identify the most impactful problems using the 80/20 principle">
+
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self';
+                   script-src 'self' 'unsafe-inline';
+                   style-src 'self' 'unsafe-inline';
+                   img-src 'self' data:;
+                   font-src 'self';
+                   connect-src 'self';
+                   frame-ancestors 'none';
+                   base-uri 'self';
+                   form-action 'self';">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+
+    <title>Pareto Analysis - Decision Making</title>
+    <link rel="stylesheet" href="../styles/styles.css">
+</head>
+<body>
+    <a href="#main-input" class="skip-link">Skip to main input</a>
+    <main class="container pareto-tool">
+        <header class="app-header">
+            <div class="header-content">
+                <div>
+                    <a href="../index.html" class="back-link" aria-label="Back to decision tools">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        <span>All Tools</span>
+                    </a>
+                    <h1>Pareto Analysis</h1>
+                    <p class="subtitle">80/20 Principle - Focus on What Matters</p>
+                </div>
+                <div class="header-buttons">
+                    <button id="help-toggle" class="help-toggle" aria-label="Show keyboard shortcuts">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                    </button>
+                    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+                        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Data Management Section -->
+        <section class="data-management-section" aria-label="Data management controls">
+            <div class="data-management-buttons">
+                <button type="button" id="clear-all" class="btn-text">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    Clear All
+                </button>
+                <button type="button" id="load-sample-btn" class="btn-text" aria-label="Load sample data">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    Load Sample
+                </button>
+                <input type="file" id="import-file" accept=".json,.csv,application/json,text/csv" style="display: none;" aria-label="Import data file">
+                <button type="button" id="import-btn" class="btn-text" aria-label="Import data from file">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                    </svg>
+                    Import
+                </button>
+                <select id="export-select" class="category-transfer" aria-label="Export data">
+                    <option value="">Export...</option>
+                    <option value="json">Export as JSON</option>
+                    <option value="csv">Export as CSV</option>
+                </select>
+                <button type="button" id="save-history-btn" class="btn-text" aria-label="Save to history">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    History
+                </button>
+                <span id="storage-indicator-container"></span>
+            </div>
+        </section>
+
+        <section class="task-input-section" aria-label="Add new item and manage groups">
+            <form id="item-form">
+                <div class="input-group">
+                    <label for="item-input" class="visually-hidden">Item or group description</label>
+                    <p class="input-hint">
+                        <span>Quick tips: </span>
+                        <span>Type /group [name] to create a group • Enter to add item • Ctrl+I to focus • Ctrl+1-9,0 for impact (when using Impact scoring) • ? for help</span>
+                    </p>
+                    <div class="input-with-counter">
+                        <input
+                            type="text"
+                            id="main-input"
+                            placeholder="Type an item or /group to create a group..."
+                            required
+                            aria-required="true"
+                            autocomplete="off"
+                            maxlength="500"
+                            autofocus>
+                        <span class="char-counter" id="char-counter" aria-live="polite">
+                            <span id="char-count">0</span>/500
+                        </span>
+                    </div>
+                    <div class="impact-selector" id="impact-selector" style="display: none;" aria-live="polite">
+                        <label for="impact-input" class="impact-label">Impact (1-10):</label>
+                        <div class="impact-buttons" role="group" aria-label="Select item impact">
+                            <button type="button" class="impact-btn" data-impact="1" aria-label="Low impact">1</button>
+                            <button type="button" class="impact-btn" data-impact="2" aria-label="Impact 2">2</button>
+                            <button type="button" class="impact-btn" data-impact="3" aria-label="Impact 3">3</button>
+                            <button type="button" class="impact-btn" data-impact="4" aria-label="Impact 4">4</button>
+                            <button type="button" class="impact-btn active" data-impact="5" aria-label="Medium impact">5</button>
+                            <button type="button" class="impact-btn" data-impact="6" aria-label="Impact 6">6</button>
+                            <button type="button" class="impact-btn" data-impact="7" aria-label="Impact 7">7</button>
+                            <button type="button" class="impact-btn" data-impact="8" aria-label="Impact 8">8</button>
+                            <button type="button" class="impact-btn" data-impact="9" aria-label="Impact 9">9</button>
+                            <button type="button" class="impact-btn" data-impact="10" aria-label="High impact">10</button>
+                        </div>
+                        <input type="hidden" id="impact-input" value="5">
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; margin-top: 0.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <label for="scoring-method">Scoring:</label>
+                        <select id="scoring-method" class="scoring-select">
+                            <option value="frequency">Frequency</option>
+                            <option value="impact">Impact</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <!-- Ungrouped Items Section -->
+        <section id="ungrouped-section" class="ungrouped-items-section" aria-label="Ungrouped items">
+            <div class="section-header">
+                <h2>Ungrouped Items</h2>
+                <span id="ungrouped-count" class="section-count">(0)</span>
+            </div>
+            <ul id="ungrouped-list" class="item-list" role="list"></ul>
+        </section>
+
+        <!-- Groups Section -->
+        <section id="groups-section" class="groups-section" aria-label="Groups and items">
+            <div class="section-header">
+                <h2>Groups</h2>
+                <span id="groups-count" class="section-count">(0)</span>
+            </div>
+            <div id="groups-container" class="groups-container">
+                <div class="empty-state" id="groups-empty">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="9" y1="9" x2="15" y2="9"></line>
+                        <line x1="9" y1="15" x2="15" y2="15"></line>
+                    </svg>
+                    <h3>Get Started with Groups</h3>
+                    <p>Groups help you organize items and identify the vital few (80/20 rule)</p>
+                    <div class="empty-state-actions">
+                        <kbd>/group [name]</kbd>
+                        <span>Type in the input above, then press Enter</span>
+                    </div>
+                    <p class="empty-state-example">Example: <code>/group Bug Fixes</code></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analysis Section -->
+        <section id="analysis-section" class="analysis-section" aria-label="Analysis results">
+            <div class="section-header">
+                <h2>Analysis</h2>
+                <button id="toggle-chart" class="btn-text">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="20" x2="12" y2="10"></line>
+                        <line x1="18" y1="20" x2="18" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="16"></line>
+                    </svg>
+                    Show Chart
+                </button>
+            </div>
+            
+            <div id="analysis-empty" class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+                <p>Add groups and items to see Pareto analysis</p>
+            </div>
+
+            <div id="chart-container" class="chart-container" style="display: none;">
+                <canvas id="pareto-chart" width="600" height="400"></canvas>
+            </div>
+
+            <div id="rankings-container" class="rankings-container">
+                <!-- Rankings will be dynamically generated -->
+            </div>
+
+            <div id="priority-summary" class="priority-summary" style="display: none;">
+                <div class="insight-icon">💡</div>
+                <h3>Key Insight</h3>
+                <p id="insight-text"></p>
+                <div class="priority-actions">
+                    <h4>Priority Groups:</h4>
+                    <ol id="priority-list"></ol>
+                </div>
+            </div>
+        </section>
+
+        <footer class="task-footer" style="display: none;">
+        </footer>
+    </main>
+
+    <!-- Context Menu -->
+    <div id="context-menu" class="context-menu" role="menu" aria-hidden="true" style="display: none; position: fixed; z-index: 1000;">
+        <button class="context-menu-item" data-action="rename" role="menuitem">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            Rename
+        </button>
+        <button class="context-menu-item" data-action="color" role="menuitem">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+            </svg>
+            Change Color
+        </button>
+        <button class="context-menu-item" data-action="score" role="menuitem">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+            Set Custom Score
+        </button>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="help-modal" role="dialog" aria-labelledby="help-modal-title" aria-hidden="true">
+        <div class="help-modal-content">
+            <div class="help-modal-header">
+                <h2 id="help-modal-title">Pareto Analysis Guide</h2>
+                <button id="help-modal-close" class="help-modal-close" aria-label="Close help">×</button>
+            </div>
+            <div class="help-modal-body">
+                <section class="help-section">
+                    <h3>About Pareto Analysis</h3>
+                    <p>Pareto Analysis is based on the <strong>80/20 rule</strong> (Pareto Principle), which states that roughly 80% of effects come from 20% of causes. Named after economist Vilfredo Pareto, this principle helps you focus on the "vital few" factors that have the greatest impact.</p>
+                    <p>Use this tool to identify which issues, tasks, or categories deserve your attention first by analyzing their relative contribution to the whole.</p>
+                </section>
+
+                <section class="help-section">
+                    <h3>How to Use</h3>
+                    <ol>
+                        <li><strong>Create Groups:</strong> Type <code>/group [name]</code> to create categories (e.g., "/group Bugs")</li>
+                        <li><strong>Add Items:</strong> Type items and press Enter to add them</li>
+                        <li><strong>Assign to Groups:</strong> Drag items into groups or add directly to a selected group</li>
+                        <li><strong>Choose Scoring:</strong> Select Frequency, Impact, or Custom scoring method</li>
+                        <li><strong>Analyze Results:</strong> View the analysis to see which groups are "Priority" (within the 80%)</li>
+                    </ol>
+                </section>
+
+                <section class="help-section">
+                    <h3>Scoring Methods</h3>
+                    <div class="help-explanation">
+                        <ul>
+                            <li><strong>Frequency</strong> - Groups are scored by the count of items they contain</li>
+                            <li><strong>Impact</strong> - Groups are scored by summing the impact values (1-10) of their items. Use the impact selector (1-10 buttons) to set each item's impact before adding it.</li>
+                            <li><strong>Custom</strong> - Groups use manually set scores (right-click → Set Custom Score)</li>
+                        </ul>
+
+                        <p><strong>Setting Impact Values:</strong> When using Impact scoring, an impact selector (1-10) appears below the input field. Click a number before pressing Enter to set that item's impact. Default is 5.</p>
+
+                        <p><strong>Understanding Results:</strong></p>
+                        <ul>
+                            <li><strong>Rank</strong> - Groups ordered from highest to lowest score (#1 = highest)</li>
+                            <li><strong>Share</strong> - Each group's percentage of the total score</li>
+                            <li><strong>Cumulative</strong> - Running total percentage. Groups reaching 80% cumulative are marked as Priority</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section class="help-section">
+                    <h3>Keyboard Shortcuts</h3>
+                    <div class="shortcuts-grid">
+                        <h4>Input Commands</h4>
+                        <dl class="help-list">
+                            <dt><kbd>/group [name]</kbd></dt>
+                            <dd>Create a new group (e.g., "/group Bugs")</dd>
+                            <dt><kbd>Enter</kbd></dt>
+                            <dd>Add item to analysis</dd>
+                        </dl>
+
+                        <h4>Navigation</h4>
+                        <dl class="help-list">
+                            <dt><kbd>⌘</kbd> + <kbd>I</kbd></dt>
+                            <dd>Focus input field</dd>
+                            <dt><kbd>⌘</kbd> + <kbd>U</kbd></dt>
+                            <dd>Jump to Ungrouped Items section</dd>
+                            <dt><kbd>⌘</kbd> + <kbd>G</kbd></dt>
+                            <dd>Jump to Groups section</dd>
+                            <dt><kbd>⌘</kbd> + <kbd>R</kbd></dt>
+                            <dd>Jump to Analysis/Results section</dd>
+                            <dt><kbd>⌘</kbd> + <kbd>1-9</kbd>, <kbd>0</kbd></dt>
+                            <dd>Set impact value (1-9, or 0 for 10)</dd>
+                            <dt><kbd>⌘</kbd> + <kbd>A</kbd></dt>
+                            <dd>Toggle chart visibility</dd>
+                            <dt><kbd>?</kbd></dt>
+                            <dd>Show/hide this help</dd>
+                            <dt><kbd>Esc</kbd></dt>
+                            <dd>Close menus/modals</dd>
+                        </dl>
+
+                        <h4>Group Actions</h4>
+                        <dl class="help-list">
+                            <dt><kbd>×</kbd> on group</dt>
+                            <dd>Delete group (moves items to ungrouped)</dd>
+                            <dt><kbd>×</kbd> on item</dt>
+                            <dd>Remove from group or delete if ungrouped</dd>
+                            <dt><kbd>Right-click</kbd> group</dt>
+                            <dd>Rename, change color, or set custom score</dd>
+                        </dl>
+                    </div>
+                </section>
+
+                <section class="help-section">
+                    <h3>Best Practices</h3>
+                    <ul>
+                        <li><strong>Use Meaningful Groups:</strong> Categories should be distinct and actionable</li>
+                        <li><strong>Be Comprehensive:</strong> Include all relevant items before analyzing</li>
+                        <li><strong>Focus on Priority:</strong> The top 20% of groups causing 80% of impact deserve most attention</li>
+                        <li><strong>Choose the Right Scoring:</strong> Use Impact when items have varying importance, Frequency when counting matters</li>
+                        <li><strong>Review Regularly:</strong> Pareto distributions can shift over time</li>
+                        <li><strong>Take Action:</strong> The analysis is only valuable if you act on the priorities identified</li>
+                        <li><strong>Export for Reports:</strong> Use the export feature to share findings with stakeholders</li>
+                    </ul>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Screen Reader Announcements -->
+    <div id="sr-announcements" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Utility scripts -->
+    <script src="../utils/app-config.js"></script>
+    <script src="../utils/logger.js"></script>
+    <script src="../utils/error-handler.js"></script>
+    <script src="../utils/theme-manager.js"></script>
+    <script src="../utils/toast-manager.js"></script>
+    <script src="../utils/storage-manager.js"></script>
+    <script src="../utils/character-counter.js"></script>
+    <script src="../utils/modal-manager.js"></script>
+    <script src="../utils/dom-helpers.js"></script>
+    <script src="../utils/import-export-manager.js"></script>
+    <script src="../utils/sample-data-manager.js"></script>
+    <script src="../utils/history-manager.js"></script>
+
+    <!-- Tool script -->
+    <script src="../scripts/pareto-script.js"></script>
+</body>
+</html>
