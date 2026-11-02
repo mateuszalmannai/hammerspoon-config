@@ -120,6 +120,7 @@ The tables below are generated from the ⌘⌥H cheatsheet with `make readme`, s
 | ⌘⇧W | Launch or focus WhatsApp |
 | ⌘⌥C | Launch or focus Fantastical |
 | ⌘⌥M | Launch or focus MailMate |
+| ⌘⌥O | Launch or focus Microsoft Outlook |
 | ⌘⌥S | Launch or focus Strongbox |
 | ⌘⌥W | Launch or focus WezTerm |
 | ⌘⌥Y | Launch or focus Yubico Authenticator |
