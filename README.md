@@ -33,7 +33,7 @@ widgets.
 
 On load you get a "Hammerspoon config loaded" alert and a sound.
 
-The app hotkeys assume Brave, WhatsApp, Fantastical, WezTerm, Strongbox and
+The app hotkeys assume Brave, Microsoft Teams, WhatsApp, Fantastical, WezTerm, Strongbox and
 Yubico Authenticator are installed. Edit `modules/app_launcher.lua` and
 `modules/leader.lua` to change them.
 
@@ -117,6 +117,7 @@ The tables below are generated from the ⌘⌥H cheatsheet with `make readme`, s
 | Hotkey | Action |
 |---|---|
 | ⌘⇧B | Launch or focus Brave Browser |
+| ⌘⇧T | Launch or focus Microsoft Teams |
 | ⌘⇧W | Launch or focus WhatsApp |
 | ⌘⌥C | Launch or focus Fantastical |
 | ⌘⌥M | Launch or focus MailMate |
