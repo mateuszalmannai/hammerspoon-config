@@ -7,6 +7,7 @@ local cmd_opt = {"cmd", "alt"}
 
 local applicationHotkeys = {
   b = 'Brave Browser',
+  i = 'IntelliJ IDEA',
   t = 'Microsoft Teams',
   w = 'WhatsApp',
 }

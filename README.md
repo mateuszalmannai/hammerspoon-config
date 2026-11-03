@@ -117,6 +117,7 @@ The tables below are generated from the ⌘⌥H cheatsheet with `make readme`, s
 | Hotkey | Action |
 |---|---|
 | ⌘⇧B | Launch or focus Brave Browser |
+| ⌘⇧I | Launch or focus IntelliJ IDEA |
 | ⌘⇧T | Launch or focus Microsoft Teams |
 | ⌘⇧W | Launch or focus WhatsApp |
 | ⌘⌥C | Launch or focus Fantastical |
