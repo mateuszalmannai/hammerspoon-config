@@ -32,11 +32,33 @@ end
 --- Method
 --- Toggle mic mute on/off
 ---
+-- Mute or unmute every physical input device, not just the default one: apps
+-- like Teams pick their own mic, which may not be the system default. Virtual
+-- devices (e.g. Teams' own loopback driver) are left alone.
+local function setAllInputsMuted(muted)
+	for _, dev in ipairs(hs.audiodevice.allInputDevices()) do
+		if dev:transportType() ~= "Virtual" then
+			dev:setMuted(muted)
+		end
+	end
+end
+
+-- Teams' own mute shortcut, so its in-call mute indicator matches. It is a
+-- toggle, so if Teams was muted or unmuted with the mouse in between, the two
+-- get out of step; the devices above are muted either way.
+local function toggleTeamsMute()
+	local teams = hs.application.get("com.microsoft.teams2")
+	if teams then
+		hs.eventtap.keyStroke({"cmd", "shift"}, "m", 0, teams)
+	end
+end
+
 function obj:toggleMicMute()
 	local mic = hs.audiodevice.defaultInputDevice()
 	local zoom = hs.application'Zoom'
+	toggleTeamsMute()
 	if mic:muted() then
-		mic:setMuted(false)
+		setAllInputsMuted(false)
 		if zoom then
 			local ok = zoom:selectMenuItem'Unmute Audio'
 			if not ok then
@@ -46,7 +68,7 @@ function obj:toggleMicMute()
 			end
 		end
 	else
-		mic:setMuted(true)
+		setAllInputsMuted(true)
 		if zoom then
 			local ok = zoom:selectMenuItem'Mute Audio'
 			if not ok then
