@@ -242,6 +242,7 @@ The tables below are generated from the ⌘⌥H cheatsheet with `make readme`, s
   dark mode.
 - **MicMute**: microphone status in the menu bar.
 - **MountedVolumes**: disks with free-space pie charts on the desktop.
+- **RemindAgenda**: today's and tomorrow's reminders from remind in the top-left corner of the desktop. Past events are dimmed, the current one is marked "(now)" and the next one shows a countdown. It re-runs remind every 10 minutes, when a file in `~/markdown/synched_reminders` changes and after wake; clicking it opens the Hyper+W calendar popup.
 - **Desktop widgets**: CircleClock, TimeFlow, HCalendar and BingDaily (daily
   Bing wallpaper).
 - **FadeLogo**: the Hammerspoon logo fades in on load.
@@ -262,6 +263,7 @@ Logic that doesn't need `hs.*` lives in plain Lua files inside the spoon
 or module (`Spoons/Cherry.spoon/days.lua`,
 `Spoons/TaskwarriorViews.spoon/ansi.lua`, `Spoons/QuickNote.spoon/insert.lua`,
 `Spoons/DecisionTools.spoon/files.lua`,
+`Spoons/RemindAgenda.spoon/agenda.lua`,
 `modules/popupLayout.lua`,
 `modules/fuzzy.lua`) and is tested
 with

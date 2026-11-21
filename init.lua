@@ -138,6 +138,12 @@ hotkeyCheatsheet.bindHotkey(hyper, "w", function()
 end, "Remind calendar popup: show or hide (1/2/m: week, two weeks, month; Esc or click closes)")
 hotkeyCheatsheet.describeViews(hyper, "w", "Remind calendar", spoon.RemindCalendar)
 
+-- RemindAgenda: today's and tomorrow's reminders on the desktop, top left
+-- (placed in layoutDesktopWidgets); click opens the popup
+hs.loadSpoon("RemindAgenda")
+spoon.RemindAgenda.onClick = function() spoon.RemindCalendar:toggle() end
+spoon.RemindAgenda:start()
+
 -- TaskwarriorViews: taskwarrior reports for the active context in a popup
 hs.loadSpoon("TaskwarriorViews")
 hotkeyCheatsheet.bindHotkey(hyper, "t", function()
@@ -222,6 +228,9 @@ local function layoutDesktopWidgets()
   -- bottom-left: calendar strip
   local hc = spoon.HCalendar.canvas
   hc:topLeft({ x = f.x + margin, y = f.y + f.h - hc:size().h - margin })
+
+  -- top-left: today's agenda, growing downwards with the number of events
+  spoon.RemindAgenda:setTopLeft({ x = f.x + margin, y = f.y + margin })
 end
 layoutDesktopWidgets()
 widgetScreenWatcher = hs.screen.watcher.new(layoutDesktopWidgets):start()
