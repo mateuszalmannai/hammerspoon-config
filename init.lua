@@ -144,6 +144,21 @@ hs.loadSpoon("RemindAgenda")
 spoon.RemindAgenda.onClick = function() spoon.RemindCalendar:toggle() end
 spoon.RemindAgenda:start()
 
+-- VPNStatus: vpn-switch tunnels on the desktop (left edge, placed in
+-- layoutDesktopWidgets), each with a check that the service behind it answers;
+-- click opens VPN Switch. The tunnel list names internal hosts, so it lives in
+-- the git-ignored local/vpn_tunnels.lua (format: local/vpn_tunnels.example.lua);
+-- without it the widget isn't loaded.
+local vpnTunnels = hs.configdir .. "/local/vpn_tunnels.lua"
+if hs.fs.attributes(vpnTunnels) then
+  hs.loadSpoon("VPNStatus")
+  spoon.VPNStatus.tunnels = dofile(vpnTunnels)
+  spoon.VPNStatus.onClick = function() hs.application.launchOrFocus("VPN Switch") end
+  spoon.VPNStatus:start()
+else
+  print("VPNStatus: no " .. vpnTunnels .. ", widget not shown")
+end
+
 -- TaskwarriorViews: taskwarrior reports for the active context in a popup
 hs.loadSpoon("TaskwarriorViews")
 hotkeyCheatsheet.bindHotkey(hyper, "t", function()
@@ -231,6 +246,12 @@ local function layoutDesktopWidgets()
 
   -- top-left: today's agenda, growing downwards with the number of events
   spoon.RemindAgenda:setTopLeft({ x = f.x + margin, y = f.y + margin })
+
+  -- left edge, around the vertical centre (opposite CircleClock): VPN status,
+  -- anchored by its top so optional rows appearing don't move the others
+  if spoon.VPNStatus then
+    spoon.VPNStatus:setTopLeft({ x = f.x + margin, y = f.y + f.h / 2 - 40 })
+  end
 end
 layoutDesktopWidgets()
 widgetScreenWatcher = hs.screen.watcher.new(layoutDesktopWidgets):start()

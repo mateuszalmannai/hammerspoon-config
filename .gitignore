@@ -1,2 +1,4 @@
 .DS_Store
 cherry.db*
+local/*
+!local/*.example.lua
