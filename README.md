@@ -243,6 +243,7 @@ The tables below are generated from the ⌘⌥H cheatsheet with `make readme`, s
 - **MicMute**: microphone status in the menu bar.
 - **MountedVolumes**: disks with free-space pie charts on the desktop.
 - **RemindAgenda**: today's and tomorrow's reminders from remind in the top-left corner of the desktop. Past events are dimmed, the current one is marked "(now)" and the next one shows a countdown. It re-runs remind every 10 minutes, when a file in `~/markdown/synched_reminders` changes and after wake; clicking it opens the Hyper+W calendar popup.
+- **TaskwarriorSummary**: below the agenda (it moves down as the agenda grows), taskwarrior's state for the active context: how many tasks are overdue and due today, and the top 5 tasks of the `next` report with project and due date ("6d late", "today", "in 3d"). Overdue counts and tasks are red. It re-reads the tasks every 2 minutes and after wake, without changing or syncing anything; clicking it opens the Hyper+T popup.
 - **VPNStatus**: the vpn-switch tunnels on the left edge of the desktop, each with a coloured dot: green when the tunnel is up and the service behind it answers (a TCP connect to a host and port you give per tunnel), amber when the tunnel is up but the service doesn't answer, red when the tunnel is down. A tunnel marked `onDemand` (connected only when needed) shows a grey "off" when down instead of red; one marked `optional` only appears while connected. It checks every 30 seconds, when a tunnel starts or stops, when the network changes and after wake; clicking it opens VPN Switch and checks again. The tunnel list names internal hosts, so it lives in `local/vpn_tunnels.lua`, which is git-ignored: copy `local/vpn_tunnels.example.lua` to start one. Without it the widget isn't loaded.
 - **Desktop widgets**: CircleClock, TimeFlow, HCalendar and BingDaily (daily
   Bing wallpaper).
@@ -266,6 +267,7 @@ or module (`Spoons/Cherry.spoon/days.lua`,
 `Spoons/DecisionTools.spoon/files.lua`,
 `Spoons/RemindAgenda.spoon/agenda.lua`,
 `Spoons/VPNStatus.spoon/status.lua`,
+`Spoons/TaskwarriorSummary.spoon/summary.lua`,
 `modules/popupLayout.lua`,
 `modules/fuzzy.lua`) and is tested
 with

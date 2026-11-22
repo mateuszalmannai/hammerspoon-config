@@ -166,6 +166,12 @@ hotkeyCheatsheet.bindHotkey(hyper, "t", function()
 end, "Taskwarrior popup: show or hide (n/b/h/s: next, burndown, history, summary; Esc or click closes)")
 hotkeyCheatsheet.describeViews(hyper, "t", "Taskwarrior", spoon.TaskwarriorViews)
 
+-- TaskwarriorSummary: overdue / due-today counts and the top tasks of the
+-- active context on the desktop, below the agenda; click opens the popup
+hs.loadSpoon("TaskwarriorSummary")
+spoon.TaskwarriorSummary.onClick = function() spoon.TaskwarriorViews:toggle() end
+spoon.TaskwarriorSummary:start()
+
 -- QuickNote: one-line box that adds a timestamped note to a file, at the end
 -- of the section whose heading contains `section`
 hs.loadSpoon("QuickNote")
@@ -218,7 +224,9 @@ hotkeyCheatsheet.describeSequence(hyper, "g", hsearchSteps)
 -- menu bar, clear of the Dock) with a consistent margin. Re-applied whenever
 -- the screen configuration changes.
 local function layoutDesktopWidgets()
-  local f = hs.screen.mainScreen():frame()
+  -- the primary screen (the one with the menu bar), not mainScreen(), which is
+  -- whichever screen has the focused window when this runs
+  local f = hs.screen.primaryScreen():frame()
   local margin = 20
 
   local colRight = f.x + f.w - margin
@@ -244,7 +252,11 @@ local function layoutDesktopWidgets()
   local hc = spoon.HCalendar.canvas
   hc:topLeft({ x = f.x + margin, y = f.y + f.h - hc:size().h - margin })
 
-  -- top-left: today's agenda, growing downwards with the number of events
+  -- top-left: today's agenda, growing downwards with the number of events,
+  -- and the task summary below it, moving down as the agenda grows
+  spoon.RemindAgenda.onLayout = function(agenda)
+    spoon.TaskwarriorSummary:setTopLeft({ x = agenda.x, y = agenda.y + agenda.h + margin })
+  end
   spoon.RemindAgenda:setTopLeft({ x = f.x + margin, y = f.y + margin })
 
   -- left edge, around the vertical centre (opposite CircleClock): VPN status,
