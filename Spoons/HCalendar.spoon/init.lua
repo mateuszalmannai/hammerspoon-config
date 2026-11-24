@@ -32,15 +32,23 @@ local function updateHcalCanvas()
     local firstdayofnextmonth = os.time{year=currentyear, month=currentmonth+1, day=1}
     local lastdayofcurrentmonth = os.date("*t", firstdayofnextmonth-24*60*60).day
     local midlinecolor = obj.midlinecolor
+    -- local fix: reset the progress bar colour, which is only ever set to red on weekends
+    obj.canvas[97].fillColor = {red=1, green=1, blue=1, alpha=0.5}
     for i=1,31 do
         local weekdayofqueriedday = os.date("*t", os.time{year=currentyear, month=currentmonth, day=i}).wday
         local mappedweekdaystr = weeknames[weekdayofqueriedday]
         obj.canvas[2+i].text = mappedweekdaystr
         obj.canvas[64+i].text = i
+        -- local fix: set every column's colours from scratch on each update, so weekend
+        -- red and hidden columns from the previous month don't carry over
         if mappedweekdaystr == "Sa" or mappedweekdaystr == "Su" then
             obj.canvas[2+i].textColor = {hex="#FF7878"}
             obj.canvas[33+i].fillColor = {hex="#FF7878"}
             obj.canvas[64+i].textColor = {hex="#FF7878"}
+        else
+            obj.canvas[2+i].textColor = {red=1, green=1, blue=1, alpha=1}
+            obj.canvas[33+i].fillColor = {red=1, green=1, blue=1, alpha=0.5}
+            obj.canvas[64+i].textColor = {red=1, green=1, blue=1, alpha=1}
         end
         if obj.showProgress and i < math.tointeger(currentday) then
             obj.canvas[33+i].fillColor = {hex="#00BAFF", alpha=0.8}
@@ -68,11 +76,12 @@ local function updateHcalCanvas()
 --        else
 --            obj.canvas[33+i].fillColor = midlinecolor
         end
-        -- hide extra day
+        -- hide extra day (local fix: upstream misspelt "alpha" as "alpah" for the
+        -- midline and day number, so e.g. "31" still showed in 30-day months)
         if i > lastdayofcurrentmonth then
-            obj.canvas[2+i].textColor.alpha = 0
-            obj.canvas[33+i].fillColor.alpah = 0
-            obj.canvas[64+i].textColor.alpah = 0
+            obj.canvas[2+i].textColor = {alpha=0}
+            obj.canvas[33+i].fillColor = {alpha=0}
+            obj.canvas[64+i].textColor = {alpha=0}
         end
         -- conditionally show progress fill bar
         if obj.showProgress then
