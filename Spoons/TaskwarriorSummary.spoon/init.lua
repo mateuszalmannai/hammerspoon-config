@@ -50,6 +50,12 @@ obj.alertColor = { hex = "#FF7878" }
 --- Function called when the widget is clicked, or nil.
 obj.onClick = nil
 
+--- TaskwarriorSummary.onLayout
+--- Variable
+--- Function called with the widget's frame each time it is drawn (its height
+--- changes with the number of tasks), e.g. to place a widget below it; or nil.
+obj.onLayout = nil
+
 local padding = 10
 
 -- per row style: colour, alpha, bold
@@ -101,6 +107,7 @@ function obj:_render()
     c:frame({ x = anchor.x, y = anchor.y, w = w, h = h })
     c[2].frame = { x = padding, y = padding, w = w - 2 * padding, h = h - 2 * padding }
     c[2].text = text
+    if self.onLayout then self.onLayout(c:frame()) end
 end
 
 -- Runs task with args; calls back with exit code and stdout. Only for small

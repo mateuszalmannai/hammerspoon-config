@@ -138,8 +138,8 @@ hotkeyCheatsheet.bindHotkey(hyper, "w", function()
 end, "Remind calendar popup: show or hide (1/2/m: week, two weeks, month; Esc or click closes)")
 hotkeyCheatsheet.describeViews(hyper, "w", "Remind calendar", spoon.RemindCalendar)
 
--- RemindAgenda: today's and tomorrow's reminders on the desktop, top left
--- (placed in layoutDesktopWidgets); click opens the popup
+-- RemindAgenda: today's and tomorrow's reminders on the desktop, bottom left
+-- above the calendar strip (placed in layoutDesktopWidgets); click opens the popup
 hs.loadSpoon("RemindAgenda")
 spoon.RemindAgenda.onClick = function() spoon.RemindCalendar:toggle() end
 spoon.RemindAgenda:start()
@@ -167,7 +167,7 @@ end, "Taskwarrior popup: show or hide (n/b/h/s: next, burndown, history, summary
 hotkeyCheatsheet.describeViews(hyper, "t", "Taskwarrior", spoon.TaskwarriorViews)
 
 -- TaskwarriorSummary: overdue / due-today counts and the top tasks of the
--- active context on the desktop, below the agenda; click opens the popup
+-- active context on the desktop, top left; click opens the popup
 hs.loadSpoon("TaskwarriorSummary")
 spoon.TaskwarriorSummary.onClick = function() spoon.TaskwarriorViews:toggle() end
 spoon.TaskwarriorSummary:start()
@@ -229,41 +229,45 @@ local function layoutDesktopWidgets()
   local f = hs.screen.primaryScreen():frame()
   local margin = 20
 
-  local colRight = f.x + f.w - margin
+  local left = f.x + margin
 
-  -- right edge, vertically centred: CircleClock
-  local cc = spoon.CircleClock.canvas
-  local ccSize = cc:size()
-  cc:topLeft({ x = colRight - ccSize.w, y = f.y + (f.h - ccSize.h) / 2 })
+  -- Everything sits in one column on the left edge, in two stacks. Widgets
+  -- whose height varies pass their frame on (onLayout), so the ones next to
+  -- them move along instead of overlapping.
 
-  -- top-right: mounted volumes, anchored by its right edge so it stays
-  -- aligned as its width changes
+  -- top stack, growing downwards: mounted volumes, task summary, VPN status
   local mv = spoon.MountedVolumes
-  mv.growsLeftwards = true
-  mv.location = { x = colRight, y = f.y + margin }
-  if mv.canvas and mv.canvas:isShowing() then mv:show() end
+  mv.growsDownwards = true
+  mv.growsLeftwards = false
+  mv.location = { x = left, y = f.y + margin }
+  mv.onLayout = function(volumes)
+    spoon.TaskwarriorSummary:setTopLeft({ x = left, y = volumes.y + volumes.h + margin })
+  end
+  spoon.TaskwarriorSummary.onLayout = function(tasks)
+    if spoon.VPNStatus then
+      spoon.VPNStatus:setTopLeft({ x = left, y = tasks.y + tasks.h + margin })
+    end
+  end
+  if mv.canvas and mv.canvas:isShowing() then
+    mv:show()
+  else
+    mv.onLayout({ y = f.y, h = 0 })
+  end
 
-  -- bottom-right: TimeFlow
+  -- bottom stack, growing upwards: TimeFlow (year) at the bottom, the month
+  -- strip above it, the agenda above that and CircleClock on top, moving up
+  -- as the agenda grows
   local tf = spoon.TimeFlow.canvas
-  local tfSize = tf:size()
-  tf:topLeft({ x = colRight - tfSize.w, y = f.y + f.h - tfSize.h - margin })
+  tf:topLeft({ x = left, y = f.y + f.h - tf:size().h - margin })
 
-  -- bottom-left: calendar strip
   local hc = spoon.HCalendar.canvas
-  hc:topLeft({ x = f.x + margin, y = f.y + f.h - hc:size().h - margin })
+  hc:topLeft({ x = left, y = tf:topLeft().y - hc:size().h - margin })
 
-  -- top-left: today's agenda, growing downwards with the number of events,
-  -- and the task summary below it, moving down as the agenda grows
+  local cc = spoon.CircleClock.canvas
   spoon.RemindAgenda.onLayout = function(agenda)
-    spoon.TaskwarriorSummary:setTopLeft({ x = agenda.x, y = agenda.y + agenda.h + margin })
+    cc:topLeft({ x = left, y = agenda.y - cc:size().h - margin })
   end
-  spoon.RemindAgenda:setTopLeft({ x = f.x + margin, y = f.y + margin })
-
-  -- left edge, around the vertical centre (opposite CircleClock): VPN status,
-  -- anchored by its top so optional rows appearing don't move the others
-  if spoon.VPNStatus then
-    spoon.VPNStatus:setTopLeft({ x = f.x + margin, y = f.y + f.h / 2 - 40 })
-  end
+  spoon.RemindAgenda:setBottomLeft({ x = left, y = hc:topLeft().y - margin })
 end
 layoutDesktopWidgets()
 widgetScreenWatcher = hs.screen.watcher.new(layoutDesktopWidgets):start()

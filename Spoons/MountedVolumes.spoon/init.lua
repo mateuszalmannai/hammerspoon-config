@@ -158,6 +158,7 @@ local updateVolumes = function(...)
     if not obj.growsDownwards then newFrame.y = obj.location.y - newFrame.h end
     if obj.growsLeftwards then newFrame.x = obj.location.x - newFrame.w end
     obj.canvas:frame(newFrame):show()
+    if obj.onLayout then obj.onLayout(obj.canvas:frame()) end
 end
 
 -- see obj.start
@@ -241,6 +242,12 @@ obj.growsDownwards = true
 ---
 --- Changes will take effect when the next volume change occurs, when the next usage check occurs (see `MountedVolumes.checkInterval`), or when `MountedVolumes:show` is invoked, whichever occurs first.
 obj.growsLeftwards = false
+
+--- MountedVolumes.onLayout
+--- Variable
+--- Function called with the display's frame each time it is redrawn (its height
+--- changes with the number of mounted volumes), e.g. to place a widget below it; or nil.
+obj.onLayout = nil
 
 --- MountedVolumes.checkInterval
 --- Variable

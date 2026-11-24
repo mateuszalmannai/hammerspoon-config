@@ -99,8 +99,15 @@ function obj:_render()
     local size = c:minimumTextSize(text)
     local w = math.max(self.minWidth, math.ceil(size.w) + 4 + 2 * padding)
     local h = math.ceil(size.h) + 2 * padding
-    local anchor = self._topLeft or { x = 20, y = hs.screen.mainScreen():frame().y + 20 }
-    c:frame({ x = anchor.x, y = anchor.y, w = w, h = h })
+    local x, y
+    if self._bottomLeft then
+        -- anchored by its bottom edge: grows upwards
+        x, y = self._bottomLeft.x, self._bottomLeft.y - h
+    else
+        local anchor = self._topLeft or { x = 20, y = hs.screen.mainScreen():frame().y + 20 }
+        x, y = anchor.x, anchor.y
+    end
+    c:frame({ x = x, y = y, w = w, h = h })
     c[2].frame = { x = padding, y = padding, w = w - 2 * padding, h = h - 2 * padding }
     c[2].text = text
     if self.onLayout then self.onLayout(c:frame()) end
@@ -135,7 +142,17 @@ end
 --- Puts the widget's top-left corner at `point` ({x=, y=}); it grows
 --- downwards as the number of events changes.
 function obj:setTopLeft(point)
-    self._topLeft = point
+    self._topLeft, self._bottomLeft = point, nil
+    if self.canvas then self:_render() end
+    return self
+end
+
+--- RemindAgenda:setBottomLeft(point)
+--- Method
+--- Puts the widget's bottom-left corner at `point` ({x=, y=}); it grows
+--- upwards as the number of events changes.
+function obj:setBottomLeft(point)
+    self._bottomLeft, self._topLeft = point, nil
     if self.canvas then self:_render() end
     return self
 end
