@@ -73,6 +73,16 @@ function M.parseInput(s)
   return nil, "use DD.MM.YYYY, or DD.MM. for every year"
 end
 
+-- A stored date as it's typed in the dialog, the reverse of parseInput:
+-- "2026-12-24" -> "24.12.2026", "12-24" -> "24.12.". Anything else unchanged.
+function M.formatInput(date)
+  local y, m, d = (date or ""):match("^(%d%d%d%d)-(%d%d)-(%d%d)$")
+  if y then return d .. "." .. m .. "." .. y end
+  m, d = (date or ""):match("^(%d%d)-(%d%d)$")
+  if m then return d .. "." .. m .. "." end
+  return date or ""
+end
+
 -- The start (local midnight) of the day a stored date ("YYYY-MM-DD", or
 -- "MM-DD" for every year) refers to at `now`. A yearly date is this year's
 -- until that day is over, then next year's (29 Feb: the next leap year).

@@ -41,6 +41,21 @@ describe("countdown.parseInput", function()
   end)
 end)
 
+describe("countdown.formatInput", function()
+  it("turns stored dates back into what parseInput reads", function()
+    assert.are.equal("24.12.2026", countdown.formatInput("2026-12-24"))
+    assert.are.equal("24.12.", countdown.formatInput("12-24"))
+    for _, date in ipairs({ "2026-12-24", "12-24", "02-29", "2027-01-05" }) do
+      assert.are.equal(date, countdown.parseInput(countdown.formatInput(date)))
+    end
+  end)
+
+  it("leaves anything else unchanged", function()
+    assert.are.equal("Christmas", countdown.formatInput("Christmas"))
+    assert.are.equal("", countdown.formatInput(nil))
+  end)
+end)
+
 describe("countdown.occurrence", function()
   it("passes fixed dates through", function()
     assert.are.equal(target, countdown.occurrence("2041-04-01", at("2026-11-25")))

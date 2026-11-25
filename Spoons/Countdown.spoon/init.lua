@@ -4,7 +4,7 @@
 --- countdown, stacked upwards from a corner, each with its topic and date,
 --- the years, months and days left, the hours, minutes and seconds on top,
 --- and optionally a bar showing how much of the way is done. Countdowns are
---- added and removed from a list (Countdown:toggleChooser()) in the style of
+--- added, edited and removed from a list (Countdown:toggleChooser()) in the style of
 --- the hotkey cheatsheet, and saved in a JSON file.
 
 local countdown = dofile(hs.spoons.resourcePath("countdown.lua"))
@@ -162,7 +162,9 @@ function obj:start()
         emptyText = "No matching countdowns",
         height = 300,
         onRun = function(item)
-            if item.action == "add" then self:_add() else self:_remove(item.index) end
+            if item.action == "add" then self:_edit()
+            elseif item.action == "edit" then self:_edit(item.index)
+            else self:_remove(item.index) end
         end,
     })
     self.countdowns = load(self.file)
@@ -174,11 +176,15 @@ end
 
 local HINT_DATE = "DD.MM.YYYY, or DD.MM. for every year (e.g. 24.12.) · Enter adds · Esc cancels"
 
--- Asks for a topic, then a date, and adds the countdown.
-function obj:_add()
+-- Asks for a topic, then a date. Adds a countdown, or with index i updates
+-- that one (pre-filled with its topic and date; other fields such as
+-- startDate are kept).
+function obj:_edit(i)
+    local entry = i and self.countdowns[i]
     self._prompt:ask({
-        title = "New countdown",
+        title = entry and "Edit countdown" or "New countdown",
         placeholder = "Topic, e.g. Days to Christmas",
+        value = entry and entry.topic or "",
         hint = "Enter continues · Esc cancels",
         onSubmit = function(text)
             local topic = text:gsub("^%s+", ""):gsub("%s+$", "")
@@ -186,11 +192,16 @@ function obj:_add()
             self._prompt:ask({
                 title = "Date for “" .. topic .. "”",
                 placeholder = "24.12.",
-                hint = HINT_DATE,
+                value = entry and countdown.formatInput(entry.date) or "",
+                hint = entry and HINT_DATE:gsub("Enter adds", "Enter saves") or HINT_DATE,
                 onSubmit = function(dateText)
                     local date, err = countdown.parseInput(dateText)
                     if not date then return err:sub(1, 1):upper() .. err:sub(2) .. " · Esc cancels" end
-                    table.insert(self.countdowns, { topic = topic, date = date })
+                    if entry then
+                        entry.topic, entry.date = topic, date
+                    else
+                        table.insert(self.countdowns, { topic = topic, date = date })
+                    end
                     self:_save()
                     self:_rebuild()
                 end,
@@ -215,7 +226,7 @@ end
 
 --- Countdown:toggleChooser()
 --- Method
---- Shows a list to add a countdown or remove one (or hides it), in the style
+--- Shows a list to add, edit or remove countdowns (or hides it), in the style
 --- of the hotkey cheatsheet.
 function obj:toggleChooser()
     if self._prompt:isVisible() then self._prompt:hide() return end
@@ -226,6 +237,7 @@ function obj:toggleChooser()
         local target = countdown.occurrence(entry.date, now)
         local when = target and os.date("%d.%m.%Y", target) or entry.date
         if entry.date and #entry.date == 5 then when = os.date("%d.%m.", target) .. " every year" end
+        items[#items + 1] = { text = "Edit: " .. entry.topic, combo = when, action = "edit", index = i }
         items[#items + 1] = { text = "Remove: " .. entry.topic, combo = when, action = "remove", index = i }
     end
     self._list:show(items)

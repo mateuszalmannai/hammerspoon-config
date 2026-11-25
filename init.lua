@@ -127,8 +127,8 @@ do
 end
 Install:andUse("TimeFlow")
 -- Countdown: TimeFlow-style countdowns (topic and date) stacked in the
--- bottom-right corner (placed in layoutDesktopWidgets); Hyper+K adds or
--- removes one. They're personal, so they're saved in the git-ignored
+-- bottom-right corner (placed in layoutDesktopWidgets); Hyper+K adds,
+-- edits or removes one. They're personal, so they're saved in the git-ignored
 -- local/countdowns.json.
 hs.loadSpoon("Countdown")
 spoon.Countdown:start()
@@ -137,10 +137,10 @@ Install:andUse("BingDaily")
 
 hotkeyCheatsheet.group("Tools")
 
--- Countdown widgets (loaded above): add or remove a countdown
+-- Countdown widgets (loaded above): add, edit or remove a countdown
 hotkeyCheatsheet.bindHotkey(hyper, "k", function()
   spoon.Countdown:toggleChooser()
-end, "Countdowns: add one (topic and date) or remove one")
+end, "Countdowns: add, edit or remove one (topic and date)")
 
 -- RemindCalendar: next two weeks from remind (same files as wyrd/rcal) in a popup
 hs.loadSpoon("RemindCalendar")
