@@ -161,8 +161,18 @@ describe("status.rows", function()
       "running: running since 08:48",
       "normal: today  4h 00m of 8h 00m  50%",
       "bar: 0.50",
-      "dim: vacation  2 of 35 days left",
+      "normal: vacation  33 of 35 days  94%",
+      "bar: 0.94",
     }, texts(status.rows(statusJson("running", 4 * 3600), balance)))
+  end)
+
+  it("shows half days, and only the days left without a total", function()
+    local rows = texts(status.rows(statusJson("running", 0), { vacationDaysRemaining = 4.5, vacationDaysTotal = 30 }))
+    assert.are.equal("normal: vacation  25.5 of 30 days  85%", rows[5])
+    assert.are.equal("bar: 0.85", rows[6])
+    rows = texts(status.rows(statusJson("running", 0), { vacationDaysRemaining = 2 }))
+    assert.are.equal("normal: vacation  2 days left", rows[5])
+    assert.are.equal(5, #rows)
   end)
 
   it("shows when a paused clock was paused", function()

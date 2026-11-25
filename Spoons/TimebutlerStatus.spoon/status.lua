@@ -104,8 +104,9 @@ end
 
 -- Rows for the widget: { text =, style = } with style one of header,
 -- running, paused, stopped, normal, dim, error; and { style = "bar",
--- fraction = } rows (drawn as TimeFlow-style bars) for today's progress and,
--- while paused, for the break taken against the break needed.
+-- fraction = } rows (drawn as TimeFlow-style bars) for today's progress, the
+-- vacation days used and, while paused, the break taken against the break
+-- needed.
 -- opts: now and fetchedAt (seconds), error (message or nil)
 function M.rows(data, balance, opts)
     opts = opts or {}
@@ -148,9 +149,16 @@ function M.rows(data, balance, opts)
         rows[#rows + 1] = { text = "today  " .. M.duration(worked), style = "normal" }
     end
 
-    if type(balance) == "table" and balance.vacationDaysRemaining then
-        rows[#rows + 1] = { text = string.format("vacation  %s of %s days left",
-            balance.vacationDaysRemaining, balance.vacationDaysTotal or "?"), style = "dim" }
+    -- used = approved and pending, i.e. everything not left (days can be halves)
+    local left = type(balance) == "table" and tonumber(balance.vacationDaysRemaining)
+    local total = type(balance) == "table" and tonumber(balance.vacationDaysTotal)
+    if left and total and total > 0 then
+        local fraction = (total - left) / total
+        rows[#rows + 1] = { text = string.format("vacation  %g of %g days  %d%%", total - left, total,
+                                                 math.floor(fraction * 100)), style = "normal" }
+        rows[#rows + 1] = { style = "bar", fraction = math.min(1, math.max(0, fraction)) }
+    elseif left then
+        rows[#rows + 1] = { text = string.format("vacation  %g days left", left), style = "normal" }
     end
     return rows
 end
