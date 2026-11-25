@@ -186,7 +186,7 @@ The tables below are generated from the ⌘⌥H cheatsheet with `make readme`, s
 
 | Hotkey | Action |
 |---|---|
-| Hyper+Space | Leader menu (apps, window, clipboard, system, hammerspoon) |
+| Hyper+Space | Leader menu (apps, window, clipboard, system, timebutler, hammerspoon) |
 | Hyper+Space → a → b | Apps › Brave |
 | Hyper+Space → a → f | Apps › Fantastical |
 | Hyper+Space → a → s | Apps › Strongbox |
@@ -203,6 +203,13 @@ The tables below are generated from the ⌘⌥H cheatsheet with `make readme`, s
 | Hyper+Space → s → l | System › Lock screen |
 | Hyper+Space → s → t | System › Show time |
 | Hyper+Space → s → z | System › Sleep |
+| Hyper+Space → t → b | Timebutler › Vacation balance |
+| Hyper+Space → t → e | Timebutler › Recent entries |
+| Hyper+Space → t → p | Timebutler › Pause clock |
+| Hyper+Space → t → r | Timebutler › Resume clock |
+| Hyper+Space → t → s | Timebutler › Start clock |
+| Hyper+Space → t → w | Timebutler › Toggle widget |
+| Hyper+Space → t → x | Timebutler › Stop clock (asks) |
 | Hyper+Space → w → 1 | Window › To display 1 |
 | Hyper+Space → w → 2 | Window › To display 2 |
 | Hyper+Space → w → 3 | Window › To display 3 |
@@ -246,9 +253,16 @@ The tables below are generated from the ⌘⌥H cheatsheet with `make readme`, s
 - **RemindAgenda**: today's and tomorrow's reminders from remind at the bottom left of the desktop, just above the HCalendar strip; it grows upwards as the number of events changes, and CircleClock above it moves up with it. Past events are dimmed, the current one is marked "(now)" and the next one shows a countdown. It re-runs remind every 10 minutes, when a file in `~/markdown/synched_reminders` changes and after wake; clicking it opens the Hyper+W calendar popup.
 - **TaskwarriorSummary**: below MountedVolumes (it moves down when more disks are mounted), taskwarrior's state for the active context: how many tasks are overdue and due today, and the top 5 tasks of the `next` report with project and due date ("6d late", "today", "in 3d"). Overdue counts and tasks are red. It re-reads the tasks every 2 minutes and after wake, without changing or syncing anything; clicking it opens the Hyper+T popup.
 - **VPNStatus**: the vpn-switch tunnels below TaskwarriorSummary on the left edge of the desktop, each with a coloured dot: green when the tunnel is up and the service behind it answers (a TCP connect to a host and port you give per tunnel), amber when the tunnel is up but the service doesn't answer, red when the tunnel is down. A tunnel marked `onDemand` (connected only when needed) shows a grey "off" when down instead of red; one marked `optional` only appears while connected. It checks every 30 seconds, when a tunnel starts or stops, when the network changes and after wake; clicking it opens VPN Switch and checks again. The tunnel list names internal hosts, so it lives in `local/vpn_tunnels.lua`, which is git-ignored: copy `local/vpn_tunnels.example.lua` to start one. Without it the widget isn't loaded.
+- **TimebutlerStatus**: the Timebutler clock below VPNStatus on the left edge of the desktop (straight below TaskwarriorSummary when the VPN widget isn't loaded), read through `util tb ... --json`:
+    - a coloured dot with the clock's state: green "running since 08:48", amber "paused since 12:10", grey "stopped";
+    - today's worked time against the daily target, with a progress bar in TimeFlow's style (its colour gradient, bright over the part done); the running session is added to the saved entries and keeps counting between reads;
+    - while paused, how long the pause has lasted ("paused since 12:10 · 0h 12m") and a second bar for today's break so far (saved entries, earlier pauses and this one) against the break the law asks for: 30 minutes, 45 past 9 hours of work;
+    - the vacation days left this year.
+
+  It reads the clock every 2 minutes and the balance every hour, both again after wake. Clicking it starts, pauses or resumes the clock, whichever fits its state; Leader menu → t has the other actions. `util` reads its API token through `secret` in `~/.local/bin`, so the spoon passes its own PATH (`spoon.TimebutlerStatus.path`).
 - **Countdown**: countdowns to dates you pick, in the style of TimeFlow, stacked upwards from the bottom-right corner of the desktop. Each shows its topic and date, the years, months and days left (zero units left out), and hours, minutes, seconds and the total number of days below; updated every second. A date can be one-off (DD.MM.YYYY) or every year (DD.MM., e.g. 24.12. for Christmas, which moves on to next year once the day is over). On the day it says "Today!", and a one-off date that has passed says how many days ago. Hyper+K opens a list, in the style of the hotkey cheatsheet, to add one (asks for the topic, then the date, in the same style), edit one (the same two steps, filled in with its current topic and date) or remove one. They're personal, so they're saved in `local/countdowns.json`, which is git-ignored; add `"startDate": "YYYY-MM-DD"` to an entry there to get a TimeFlow-style bar showing how much of the way since then is done.
 - **Desktop widgets**: CircleClock, TimeFlow, HCalendar and BingDaily (daily
-  Bing wallpaper). All desktop widgets sit in one column on the left edge: MountedVolumes, TaskwarriorSummary and VPNStatus at the top; CircleClock, RemindAgenda, HCalendar (month) and TimeFlow (year) at the bottom. The exception is Countdown, whose widgets stack up from the bottom-right corner.
+  Bing wallpaper). All desktop widgets sit in one column on the left edge: MountedVolumes, TaskwarriorSummary, VPNStatus and TimebutlerStatus at the top; CircleClock, RemindAgenda, HCalendar (month) and TimeFlow (year) at the bottom. The exception is Countdown, whose widgets stack up from the bottom-right corner.
 - **FadeLogo**: the Hammerspoon logo fades in on load.
 
 ## Spoons
@@ -270,6 +284,7 @@ or module (`Spoons/Cherry.spoon/days.lua`,
 `Spoons/RemindAgenda.spoon/agenda.lua`,
 `Spoons/VPNStatus.spoon/status.lua`,
 `Spoons/TaskwarriorSummary.spoon/summary.lua`,
+`Spoons/TimebutlerStatus.spoon/status.lua`,
 `modules/popupLayout.lua`,
 `modules/fuzzy.lua`) and is tested
 with

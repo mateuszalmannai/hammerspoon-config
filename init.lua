@@ -170,6 +170,13 @@ else
   print("VPNStatus: no " .. vpnTunnels .. ", widget not shown")
 end
 
+-- TimebutlerStatus: the Timebutler clock (via `util tb`) on the desktop, below
+-- VPNStatus (placed in layoutDesktopWidgets): running/paused/stopped, today's
+-- time against the target and vacation days left; click starts, pauses or
+-- resumes the clock. Leader menu t has the other Timebutler actions.
+hs.loadSpoon("TimebutlerStatus")
+spoon.TimebutlerStatus:start()
+
 -- TaskwarriorViews: taskwarrior reports for the active context in a popup
 hs.loadSpoon("TaskwarriorViews")
 hotkeyCheatsheet.bindHotkey(hyper, "t", function()
@@ -246,7 +253,8 @@ local function layoutDesktopWidgets()
   -- whose height varies pass their frame on (onLayout), so the ones next to
   -- them move along instead of overlapping.
 
-  -- top stack, growing downwards: mounted volumes, task summary, VPN status
+  -- top stack, growing downwards: mounted volumes, task summary, VPN status,
+  -- Timebutler (straight below the tasks when the VPN widget isn't loaded)
   local mv = spoon.MountedVolumes
   mv.growsDownwards = true
   mv.growsLeftwards = false
@@ -254,11 +262,17 @@ local function layoutDesktopWidgets()
   mv.onLayout = function(volumes)
     spoon.TaskwarriorSummary:setTopLeft({ x = left, y = volumes.y + volumes.h + margin })
   end
+  local function belowTasks(frame)
+    spoon.TimebutlerStatus:setTopLeft({ x = left, y = frame.y + frame.h + margin })
+  end
   spoon.TaskwarriorSummary.onLayout = function(tasks)
     if spoon.VPNStatus then
       spoon.VPNStatus:setTopLeft({ x = left, y = tasks.y + tasks.h + margin })
+    else
+      belowTasks(tasks)
     end
   end
+  if spoon.VPNStatus then spoon.VPNStatus.onLayout = belowTasks end
   if mv.canvas and mv.canvas:isShowing() then
     mv:show()
   else

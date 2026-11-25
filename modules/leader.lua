@@ -43,6 +43,16 @@ function M.bindLeader()
       [key("k", "kill Dock")] = misc.actions.killDock,
       [key("t", "show time")] = misc.actions.showTime,
     },
+    -- the spoon is loaded after this, so look it up when a key is pressed
+    [key("t", "timebutler+")] = {
+      [key("s", "start clock")] = function() spoon.TimebutlerStatus:startClock() end,
+      [key("p", "pause clock")] = function() spoon.TimebutlerStatus:pauseClock() end,
+      [key("r", "resume clock")] = function() spoon.TimebutlerStatus:resumeClock() end,
+      [key("x", "stop clock (asks)")] = function() spoon.TimebutlerStatus:stopClock() end,
+      [key("b", "vacation balance")] = function() spoon.TimebutlerStatus:showBalance() end,
+      [key("e", "recent entries")] = function() spoon.TimebutlerStatus:showEntries() end,
+      [key("w", "toggle widget")] = function() spoon.TimebutlerStatus:toggle() end,
+    },
     [key("h", "hammerspoon+")] = {
       [key("r", "reload")] = hs.reload,
       [key("c", "console")] = hs.toggleConsole,
@@ -52,7 +62,7 @@ function M.bindLeader()
 
   hotkeyCheatsheet.group("Leader menu")
   hotkeyCheatsheet.bindHotkey(hyper, "space", rb.recursiveBind(keymap),
-    "Leader menu (apps, window, clipboard, system, hammerspoon)")
+    "Leader menu (apps, window, clipboard, system, timebutler, hammerspoon)")
   -- each leader action also gets its own row in the cheatsheet
   hotkeyCheatsheet.describeKeymap(hyper, "space", keymap)
 end
