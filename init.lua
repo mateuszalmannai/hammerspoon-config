@@ -126,22 +126,21 @@ do
   tint:delete()
 end
 Install:andUse("TimeFlow")
--- PensionCountdown: TimeFlow-style countdown to the start of my pension, in
--- the bottom-right corner (placed in layoutDesktopWidgets). The date is
--- personal, so it lives in the git-ignored local/pension.lua (format:
--- local/pension.example.lua); without it the widget isn't loaded.
-local pensionConfig = hs.configdir .. "/local/pension.lua"
-if hs.fs.attributes(pensionConfig) then
-  hs.loadSpoon("PensionCountdown")
-  for k, v in pairs(dofile(pensionConfig)) do spoon.PensionCountdown[k] = v end
-  spoon.PensionCountdown:start()
-else
-  print("PensionCountdown: no " .. pensionConfig .. ", widget not shown")
-end
+-- Countdown: TimeFlow-style countdowns (topic and date) stacked in the
+-- bottom-right corner (placed in layoutDesktopWidgets); Hyper+K adds or
+-- removes one. They're personal, so they're saved in the git-ignored
+-- local/countdowns.json.
+hs.loadSpoon("Countdown")
+spoon.Countdown:start()
 Install:andUse("HCalendar")
 Install:andUse("BingDaily")
 
 hotkeyCheatsheet.group("Tools")
+
+-- Countdown widgets (loaded above): add or remove a countdown
+hotkeyCheatsheet.bindHotkey(hyper, "k", function()
+  spoon.Countdown:toggleChooser()
+end, "Countdowns: add one (topic and date) or remove one")
 
 -- RemindCalendar: next two weeks from remind (same files as wyrd/rcal) in a popup
 hs.loadSpoon("RemindCalendar")
@@ -281,12 +280,8 @@ local function layoutDesktopWidgets()
   end
   spoon.RemindAgenda:setBottomLeft({ x = left, y = hc:topLeft().y - margin })
 
-  -- the pension countdown on its own in the bottom-right corner
-  if spoon.PensionCountdown then
-    local pc = spoon.PensionCountdown.canvas
-    local pcSize = pc:size()
-    pc:topLeft({ x = f.x + f.w - pcSize.w - margin, y = f.y + f.h - pcSize.h - margin })
-  end
+  -- the countdowns, stacked upwards from the bottom-right corner
+  spoon.Countdown:setBottomRight({ x = f.x + f.w - margin, y = f.y + f.h - margin })
 end
 layoutDesktopWidgets()
 widgetScreenWatcher = hs.screen.watcher.new(layoutDesktopWidgets):start()
