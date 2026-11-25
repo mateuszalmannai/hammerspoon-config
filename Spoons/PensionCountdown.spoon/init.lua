@@ -28,7 +28,7 @@ obj.startDate = nil
 --- PensionCountdown.title
 --- Variable
 --- Heading; "%s" is replaced by the target date as DD.MM.YYYY.
-obj.title = "Until pension · %s"
+obj.title = "Pension countdown · %s"
 
 local W = 280
 
