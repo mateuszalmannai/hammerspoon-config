@@ -57,3 +57,27 @@ describe("status.row", function()
     assert.are.same({ label = "prod", detail = "up", state = "ok" }, status.row(prod, true, nil))
   end)
 end)
+
+describe("status.appRunning", function()
+  it("spots the VPN Switch app among the processes", function()
+    local ps = table.concat({
+      "1432 /opt/homebrew/Cellar/python@3.14/3.14.10/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python -m vpnswitch",
+      "2001 /usr/local/libexec/vpn-switch/openvpn --config /usr/local/etc/vpn-switch/profiles/work-office.conf",
+    }, "\n")
+    assert.is_true(status.appRunning(ps))
+  end)
+
+  it("is false when only tunnels or a CLI command run", function()
+    assert.is_false(status.appRunning(
+      "2001 /usr/local/libexec/vpn-switch/openvpn --config /usr/local/etc/vpn-switch/profiles/work-office.conf"))
+    assert.is_false(status.appRunning("3001 /x/.venv/bin/python -m vpnswitch connect work-dev"))
+    assert.is_false(status.appRunning(nil))
+  end)
+end)
+
+describe("status.menuKey", function()
+  it("uses the key field, else the position", function()
+    assert.are.equal("p", status.menuKey({ key = "p" }, 3))
+    assert.are.equal("2", status.menuKey({}, 2))
+  end)
+end)

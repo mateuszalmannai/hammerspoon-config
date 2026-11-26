@@ -71,6 +71,14 @@ obj.onClick = nil
 --- it; or nil.
 obj.onLayout = nil
 
+--- VPNStatus.helper / appPath
+--- Variable
+--- vpn-switch's privileged helper (run through `sudo -n`, allowed by the
+--- sudoers rule its install.sh adds) and the VPN Switch app, used by
+--- toggleTunnel.
+obj.helper = "/usr/local/libexec/vpn-switch/helper"
+obj.appPath = "/Applications/VPN Switch.app"
+
 local padding = 10
 
 local function styled(text, color, bold)
@@ -143,6 +151,46 @@ function obj:refresh()
     for _, t in ipairs(self.tunnels) do
         if t.probe then self:_probe(t) end
     end
+    return self
+end
+
+--- VPNStatus:toggleTunnel(id)
+--- Method
+--- Stops the tunnel if it runs, otherwise starts it (opening VPN Switch first
+--- if it isn't running). Only the openvpn process is started here: VPN Switch
+--- attaches to it within a few seconds and does the sign-in (browser, or
+--- password and code), as it does for a tunnel started from its menu.
+function obj:toggleTunnel(id)
+    local label = id
+    for _, t in ipairs(self.tunnels) do
+        if t.id == id then label = t.label end
+    end
+
+    local function helper(action)
+        task.new("/usr/bin/sudo", function(code, stdout, stderr)
+            if code ~= 0 then
+                local out = ((stdout or "") .. (stderr or "")):gsub("%s+$", "")
+                hs.alert.show("VPN " .. label .. ": " .. action .. " failed\n"
+                    .. (out:match("[^\n]*$") or ""), 5)
+            end
+            self:refresh()
+        end, { "-n", self.helper, action, id }):start()
+    end
+
+    -- check afresh rather than trust the last refresh, which may be 30 s old
+    task.new("/usr/bin/pgrep", function(code, stdout)
+        if code ~= 0 and code ~= 1 then return end
+        if status.runningTunnels(stdout)[id] then
+            hs.alert.show("VPN " .. label .. ": disconnecting")
+            helper("stop")
+            return
+        end
+        if not status.appRunning(stdout) then
+            task.new("/usr/bin/open", nil, { "-g", self.appPath }):start()
+        end
+        hs.alert.show("VPN " .. label .. ": connecting (VPN Switch does the sign-in)")
+        helper("start")
+    end, { "-fl", "vpn-switch/openvpn|vpnswitch" }):start()
     return self
 end
 

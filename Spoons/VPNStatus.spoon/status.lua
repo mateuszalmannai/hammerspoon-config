@@ -14,6 +14,22 @@ function M.runningTunnels(psOutput)
   return running
 end
 
+-- Whether the VPN Switch menu bar app runs, from the same `pgrep -fl` output
+-- (the app is a Python process started as "... -m vpnswitch" with no
+-- arguments; `vpn-switch status` and the like add a command).
+function M.appRunning(psOutput)
+  for line in (psOutput or ""):gmatch("[^\n]+") do
+    if line:match("%-m vpnswitch%s*$") then return true end
+  end
+  return false
+end
+
+-- The key that toggles a tunnel in the hotkey menu: its `key` field, or its
+-- position in the list.
+function M.menuKey(tunnel, index)
+  return tostring(tunnel.key or index)
+end
+
 -- Splits "host:port" into host and port number.
 function M.splitProbe(probe)
   local host, port = (probe or ""):match("^(.+):(%d+)$")
