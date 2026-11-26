@@ -141,6 +141,12 @@ The tables below are generated from the ⌘⌥H cheatsheet with `make readme`, s
 | Hyper+K | Countdowns: add, edit or remove one (topic and date) |
 | Hyper+M | Toggle mounted volumes on desktop |
 | Hyper+N | Quick note to inbx.md (Uncategorised): Enter saves, Esc cancels |
+| Hyper+O | VPN menu: connect or disconnect a vpn-switch tunnel (Esc closes) |
+| Hyper+O → 1 | Dev on/off |
+| Hyper+O → 2 | Office on/off |
+| Hyper+O → 3 | Prod on/off |
+| Hyper+O → 4 | Replica on/off |
+| Hyper+O → o | Open VPN Switch |
 | Hyper+P | Pomodoro timer: start, or pause/resume (Cherry) |
 | Hyper+T | Taskwarrior popup: show or hide (n/b/h/s: next, burndown, history, summary; Esc or click closes) |
 | Hyper+T → b | Taskwarrior › Burndown |

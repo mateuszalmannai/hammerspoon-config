@@ -6,7 +6,7 @@
 --   probe     "host:port" that should answer while the tunnel works (optional)
 --   onDemand  true for a tunnel normally off: grey "off" when down, not red
 --   optional  true to show the row only while the tunnel is up
---   key       key that toggles it in the Hyper+V menu (default: its position)
+--   key       key that toggles it in the Hyper+O menu (default: its position)
 return {
   { id = "work-dev",    label = "dev",    target = "Git server", probe = "git.example.internal:22" },
   { id = "work-office", label = "office", target = "deploy VM",  probe = "deploy.example.internal:22" },

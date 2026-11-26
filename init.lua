@@ -167,7 +167,7 @@ if hs.fs.attributes(vpnTunnels) then
   spoon.VPNStatus.onClick = function() hs.application.launchOrFocus("VPN Switch") end
   spoon.VPNStatus:start()
 
-  -- Hyper+V: a menu with one key per tunnel (its `key` field, or its position
+  -- Hyper+O: a menu with one key per tunnel (its `key` field, or its position
   -- in the list) that connects it if down, disconnects it if up; o opens VPN
   -- Switch
   local vpnStatus = dofile(hs.configdir .. "/Spoons/VPNStatus.spoon/status.lua")
@@ -181,9 +181,9 @@ if hs.fs.attributes(vpnTunnels) then
     end
   end
   hotkeyCheatsheet.group("Tools")
-  hotkeyCheatsheet.bindHotkey(hyper, "v", spoon.RecursiveBinder.recursiveBind(vpnKeymap),
+  hotkeyCheatsheet.bindHotkey(hyper, "o", spoon.RecursiveBinder.recursiveBind(vpnKeymap),
     "VPN menu: connect or disconnect a vpn-switch tunnel (Esc closes)")
-  hotkeyCheatsheet.describeKeymap(hyper, "v", vpnKeymap)
+  hotkeyCheatsheet.describeKeymap(hyper, "o", vpnKeymap)
 else
   print("VPNStatus: no " .. vpnTunnels .. ", widget not shown")
 end
